@@ -62,5 +62,13 @@
         "total": 2,
         "missing": 0,
         "link": "https://ridibooks.com/books/2107000834"
+    },
+    {
+        "id": 1789053897405,
+        "title": "겟 럭키(Get Lucky)",
+        "author": "소호",
+        "total": 3,
+        "missing": 1,
+        "link": "https://ridibooks.com/books/3086000210"
     }
 ]
