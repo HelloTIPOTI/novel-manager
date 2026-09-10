@@ -38,7 +38,6 @@
             </div>
             
             <div class="flex items-center justify-between gap-2">
-                <!-- 미소장 많은순 제거 및 제목순/작가순 배치 -->
                 <select id="sort-select" class="border border-slate-200 bg-slate-50 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 w-1/2">
                     <option value="title">제목순 정렬</option>
                     <option value="author">작가순 정렬</option>
@@ -107,7 +106,7 @@
         </div>
     </div>
 
-    <!-- 상세 정보 모달 -->
+    <!-- 상세 정보 모달 (삭제 버튼 추가) -->
     <div id="detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-200">
         <div id="modal-content" class="bg-white rounded-3xl shadow-xl max-w-xs w-full overflow-hidden transform scale-95 transition-transform duration-200">
             <div class="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
@@ -149,7 +148,10 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-slate-50 px-4 py-2.5 flex justify-end border-t border-slate-100">
+            <div class="bg-slate-50 px-4 py-2.5 flex items-center justify-between border-t border-slate-100">
+                <button id="modal-delete-btn" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs px-3 py-1.5 rounded-xl cursor-pointer transition flex items-center gap-1 font-medium">
+                    <i class="fa-solid fa-trash-can text-[10px]"></i> 소장 완료 (삭제)
+                </button>
                 <button id="modal-confirm-btn" class="bg-slate-900 text-white text-xs px-3.5 py-1.5 rounded-xl cursor-pointer">
                     확인
                 </button>
@@ -161,6 +163,7 @@
         let novels = [];
         let filteredNovels = [];
         let onlyMissingFilter = false;
+        let currentSelectedNovel = null; // 현재 선택된 작품 객체 보관용
 
         const listContainer = document.getElementById('novel-list-container');
         const emptyState = document.getElementById('empty-state');
@@ -174,6 +177,7 @@
         const modalContent = document.getElementById('modal-content');
         const modalCloseBtn = document.getElementById('modal-close-btn');
         const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalDeleteBtn = document.getElementById('modal-delete-btn');
 
         function openConfigModal() {
             document.getElementById('gh-owner').value = localStorage.getItem('gh_owner') || '';
@@ -191,6 +195,8 @@
             closeConfigModal();
             fetchNovelsFromGitHub();
         }
+
+        let fileSha = ''; // GitHub 파일 업데이트용 SHA
 
         async function fetchNovelsFromGitHub() {
             const owner = localStorage.getItem('gh_owner');
@@ -213,6 +219,7 @@
                 if (!response.ok) throw new Error('GitHub 데이터를 불러오지 못했습니다.');
 
                 const data = await response.json();
+                fileSha = data.sha; // 파일 SHA 저장
                 const decodedJson = decodeURIComponent(escape(atob(data.content)));
                 novels = JSON.parse(decodedJson);
                 
@@ -221,6 +228,39 @@
             } catch (error) {
                 loadingState.classList.add('hidden');
                 alert('데이터 로드 실패: ' + error.message);
+            }
+        }
+
+        async function saveNovelsToGitHub() {
+            const owner = localStorage.getItem('gh_owner');
+            const repo = localStorage.getItem('gh_repo');
+            const token = localStorage.getItem('gh_token');
+
+            const jsonString = JSON.stringify(novels, null, 2);
+            const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
+
+            try {
+                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/novels.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Delete novel via web app',
+                        content: base64Content,
+                        sha: fileSha
+                    })
+                });
+
+                if (!response.ok) throw new Error('GitHub 저장에 실패했습니다.');
+
+                const result = await response.json();
+                fileSha = result.content.sha; // 갱신된 SHA 업데이트
+                alert('소장 완료 처리되어 목록에서 삭제되었습니다.');
+                filterAndSort();
+            } catch (error) {
+                alert('삭제 실패: ' + error.message);
             }
         }
 
@@ -305,6 +345,7 @@
         });
 
         function openModal(novel) {
+            currentSelectedNovel = novel; // 선택한 작품 기억
             document.getElementById('modal-title').textContent = novel.title;
             document.getElementById('modal-author').textContent = novel.author;
             document.getElementById('modal-total').textContent = `${novel.total}권`;
@@ -337,6 +378,17 @@
 
         modalCloseBtn.addEventListener('click', closeModal);
         modalConfirmBtn.addEventListener('click', closeModal);
+        
+        // 삭제 버튼 이벤트
+        modalDeleteBtn.addEventListener('click', () => {
+            if (!currentSelectedNovel) return;
+            if (confirm(`"${currentSelectedNovel.title}" 작품을 목록에서 삭제하시겠습니까?`)) {
+                novels = novels.filter(n => n.title !== currentSelectedNovel.title || n.author !== currentSelectedNovel.author);
+                closeModal();
+                saveNovelsToGitHub();
+            }
+        });
+
         detailModal.addEventListener('click', (e) => {
             if (e.target === detailModal) closeModal();
         });
