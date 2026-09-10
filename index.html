@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>웹소설 미소장 후속권 관리</title>
+    <title>미소장 후속관 관리</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/HelloTIPOTI/novel-manager/main/star.png">
 </head>
-<body class="bg-[#f7f9fa] text-slate-800 min-h-screen">
+<body class="bg-[#f7f9fa] text-slate-800 min-h-screen flex flex-col justify-between">
     <!-- max-w-xl(약 576px)로 폭을 더 좁고 아담하게 조절 -->
-    <div class="max-w-xl mx-auto px-3.5 py-6">
+    <div class="max-w-xl w-full mx-auto px-3.5 py-6">
         <!-- 헤더 -->
         <header class="flex items-center justify-between mb-5 pb-3.5 border-b border-slate-200">
             <div>
                 <h1 class="text-lg font-bold text-slate-900 flex items-center gap-1.5">
-                    <i class="fa-solid fa-book-bookmark text-indigo-600 text-sm"></i> 웹소설 후속권 관리
+                    <i class="fa-solid fa-book-bookmark text-indigo-600 text-sm"></i> 미소장 후속관 관리
                 </h1>
                 <p class="text-[11px] text-slate-500 mt-0.5">미소장 후속권을 한눈에 관리하세요.</p>
             </div>
@@ -64,6 +65,11 @@
             <!-- 동적 렌더링 -->
         </div>
 
+        <!-- 페이지네이션 번호 버튼 영역 -->
+        <div id="pagination-container" class="flex items-center justify-center gap-1.5 mt-6 mb-2">
+            <!-- 동적 렌더링 -->
+        </div>
+
         <!-- 로딩 상태 -->
         <div id="loading-state" class="py-16 text-center text-slate-400">
             <i class="fa-solid fa-spinner fa-spin text-xl mb-2 text-indigo-600"></i>
@@ -106,7 +112,7 @@
         </div>
     </div>
 
-    <!-- 상세 정보 모달 (삭제 버튼 추가) -->
+    <!-- 상세 정보 모달 -->
     <div id="detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-200">
         <div id="modal-content" class="bg-white rounded-3xl shadow-xl max-w-xs w-full overflow-hidden transform scale-95 transition-transform duration-200">
             <div class="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
@@ -163,9 +169,14 @@
         let novels = [];
         let filteredNovels = [];
         let onlyMissingFilter = false;
-        let currentSelectedNovel = null; // 현재 선택된 작품 객체 보관용
+        let currentSelectedNovel = null;
+        
+        // 페이지네이션 관련 변수
+        let currentPage = 1;
+        const itemsPerPage = 10; // 한 페이지에 보여줄 작품 수
 
         const listContainer = document.getElementById('novel-list-container');
+        const paginationContainer = document.getElementById('pagination-container');
         const emptyState = document.getElementById('empty-state');
         const loadingState = document.getElementById('loading-state');
         const searchInput = document.getElementById('search-input');
@@ -196,7 +207,7 @@
             fetchNovelsFromGitHub();
         }
 
-        let fileSha = ''; // GitHub 파일 업데이트용 SHA
+        let fileSha = '';
 
         async function fetchNovelsFromGitHub() {
             const owner = localStorage.getItem('gh_owner');
@@ -219,7 +230,7 @@
                 if (!response.ok) throw new Error('GitHub 데이터를 불러오지 못했습니다.');
 
                 const data = await response.json();
-                fileSha = data.sha; // 파일 SHA 저장
+                fileSha = data.sha;
                 const decodedJson = decodeURIComponent(escape(atob(data.content)));
                 novels = JSON.parse(decodedJson);
                 
@@ -256,7 +267,7 @@
                 if (!response.ok) throw new Error('GitHub 저장에 실패했습니다.');
 
                 const result = await response.json();
-                fileSha = result.content.sha; // 갱신된 SHA 업데이트
+                fileSha = result.content.sha;
                 alert('소장 완료 처리되어 목록에서 삭제되었습니다.');
                 filterAndSort();
             } catch (error) {
@@ -271,6 +282,7 @@
 
         function renderList() {
             listContainer.innerHTML = '';
+            paginationContainer.innerHTML = '';
             
             if (filteredNovels.length === 0) {
                 emptyState.classList.remove('hidden');
@@ -278,7 +290,16 @@
             }
             emptyState.classList.add('hidden');
 
-            filteredNovels.forEach(novel => {
+            // 페이지네이션 계산
+            const totalPages = Math.ceil(filteredNovels.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = filteredNovels.slice(startIndex, endIndex);
+
+            // 현재 페이지 목록 렌더링
+            currentItems.forEach(novel => {
                 const card = document.createElement('div');
                 card.className = "bg-white p-3 rounded-2xl shadow-xs border border-slate-200/80 hover:border-indigo-300 transition cursor-pointer flex items-center justify-between gap-2";
                 card.onclick = () => openModal(novel);
@@ -305,6 +326,25 @@
                 `;
                 listContainer.appendChild(card);
             });
+
+            // 페이지 번호 버튼 렌더링 (전체 페이지가 2개 이상일 때만)
+            if (totalPages > 1) {
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.textContent = i;
+                    pageBtn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center ${
+                        i === currentPage 
+                            ? 'bg-indigo-600 text-white shadow-xs' 
+                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`;
+                    pageBtn.onclick = () => {
+                        currentPage = i;
+                        renderList();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    };
+                    paginationContainer.appendChild(pageBtn);
+                }
+            }
         }
 
         function filterAndSort() {
@@ -325,6 +365,7 @@
                 }
             });
 
+            currentPage = 1; // 검색이나 필터 변경 시 첫 페이지로 초기화
             updateMissingCount();
             renderList();
         }
@@ -345,7 +386,7 @@
         });
 
         function openModal(novel) {
-            currentSelectedNovel = novel; // 선택한 작품 기억
+            currentSelectedNovel = novel;
             document.getElementById('modal-title').textContent = novel.title;
             document.getElementById('modal-author').textContent = novel.author;
             document.getElementById('modal-total').textContent = `${novel.total}권`;
@@ -379,7 +420,6 @@
         modalCloseBtn.addEventListener('click', closeModal);
         modalConfirmBtn.addEventListener('click', closeModal);
         
-        // 삭제 버튼 이벤트
         modalDeleteBtn.addEventListener('click', () => {
             if (!currentSelectedNovel) return;
             if (confirm(`"${currentSelectedNovel.title}" 작품을 목록에서 삭제하시겠습니까?`)) {
