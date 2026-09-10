@@ -6,6 +6,7 @@
     <title>작품 등록</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/HelloTIPOTI/novel-manager/main/star.png">
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex items-center justify-center p-4">
     <div class="max-w-lg w-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -19,17 +20,17 @@
             </a>
         </div>
 
-        <!-- 등록 폼 -->
-        <form id="register-form" class="p-8 space-y-5">
+        <!-- 등록 폼 (자동완성 방지 autocomplete="off" 추가) -->
+        <form id="register-form" class="p-8 space-y-5" autocomplete="off">
             <div>
                 <label class="block text-xs font-semibold text-slate-600 uppercase mb-1.5">작품 제목</label>
-                <input type="text" id="title" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <input type="text" id="title" autocomplete="off" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1.5">작가명</label>
-                    <input type="text" id="author" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="text" id="author" autocomplete="off" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1.5">전체(최신) 권수</label>
@@ -39,13 +40,14 @@
 
             <div>
                 <label class="block text-xs font-semibold text-slate-600 uppercase mb-1.5">미소장 권수</label>
-                <input type="number" id="missing" required min="0" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <p class="text-xs text-slate-400 mt-1">내가 아직 소장하지 않은 후속권의 개수를 입력하세요.</p>
+                <!-- required 속성을 제거하고 비워둘 수 있도록 변경 -->
+                <input type="number" id="missing" min="0" placeholder="입력하지 않으면 0권으로 처리됩니다" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <p class="text-xs text-slate-400 mt-1">내가 아직 소장하지 않은 후속권의 개수를 입력하세요. (선택 입력)</p>
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-slate-600 uppercase mb-1.5">리디북스 링크 (URL)</label>
-                <input type="url" id="link" placeholder="https://ridibooks.com/books/..." class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <input type="url" id="link" autocomplete="off" placeholder="https://ridibooks.com/books/..." class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
 
             <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
@@ -63,6 +65,11 @@
         const form = document.getElementById('register-form');
         const submitBtn = document.getElementById('submit-btn');
 
+        // 페이지가 열릴 때 입력창 강제 초기화 (브라우저 잔상 방지)
+        window.addEventListener('pageshow', () => {
+            form.reset();
+        });
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -79,14 +86,18 @@
             const title = document.getElementById('title').value.trim();
             const author = document.getElementById('author').value.trim();
             const total = parseInt(document.getElementById('total').value);
-            const missing = parseInt(document.getElementById('missing').value);
+            
+            // 미소장 권수를 입력하지 않았거나 빈 칸이면 0으로 처리[cite: 2]
+            const missingInput = document.getElementById('missing').value.trim();
+            const missing = missingInput === '' ? 0 : parseInt(missingInput);
+
             const link = document.getElementById('link').value.trim() || 'https://ridibooks.com';
 
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> GitHub에 저장 중...`;
 
             try {
-                // 1. 기존 novels.json 파일과 현재 SHA 가져오기
+                // 1. 기존 novels.json 파일과 현재 SHA 가져오기[cite: 2]
                 const getRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/novels.json`, {
                     headers: { 'Authorization': `token ${token}` }
                 });
@@ -98,7 +109,7 @@
                 const decodedJson = decodeURIComponent(escape(atob(fileData.content)));
                 let novels = JSON.parse(decodedJson);
 
-                // 2. 새 작품 추가
+                // 2. 새 작품 추가[cite: 2]
                 const newNovel = {
                     id: Date.now(),
                     title,
@@ -109,7 +120,7 @@
                 };
                 novels.push(newNovel);
 
-                // 3. GitHub에 갱신된 JSON 커밋하기 (PUT 요청)
+                // 3. GitHub에 갱신된 JSON 커밋하기 (PUT 요청)[cite: 2]
                 const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(novels, null, 4))));
                 
                 const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/novels.json`, {
