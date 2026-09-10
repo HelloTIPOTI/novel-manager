@@ -38,10 +38,10 @@
             </div>
             
             <div class="flex items-center justify-between gap-2">
+                <!-- 미소장 많은순 제거 및 제목순/작가순 배치 -->
                 <select id="sort-select" class="border border-slate-200 bg-slate-50 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 w-1/2">
-                    <option value="title">제목순</option>
-                    <option value="author">작가순</option>
-                    <option value="missing-desc">미소장 많은순</option>
+                    <option value="title">제목순 정렬</option>
+                    <option value="author">작가순 정렬</option>
                 </select>
 
                 <button id="filter-missing-btn" class="border border-slate-200 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center justify-center gap-1 text-slate-700 cursor-pointer w-1/2">
@@ -282,8 +282,6 @@
                     return a.title.localeCompare(b.title);
                 } else if (sortType === 'author') {
                     return a.author.localeCompare(b.author);
-                } else if (sortType === 'missing-desc') {
-                    return b.missing - a.missing;
                 }
             });
 
