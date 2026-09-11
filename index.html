@@ -266,7 +266,7 @@
         </div>
     </div>
 
-    <!-- 수정 모달 (autocomplete="off" 적용으로 직전 입력 내용 하단 노출 원천 차단) -->
+    <!-- 수정 모달 -->
     <div id="edit-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden" onclick="handleModalBackdropClick(event, 'edit-modal')">
         <div class="bg-white rounded-3xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <h3 class="font-bold text-slate-900 text-sm">작품 정보 수정</h3>
@@ -369,7 +369,8 @@
         let filterMasterpiece = false;
         let activePlatform = 'all';
 
-        let currentPage = 1;
+        // 새로고침이나 저장 시에도 현재 페이지 위치를 유지하기 위해 localStorage 연동
+        let currentPage = parseInt(localStorage.getItem('novel_current_page')) || 1;
         const itemsPerPage = 10;
         let currentSlideIndex = 0;
         let currentCoverList = [];
@@ -457,7 +458,8 @@
                 fileSha = data.sha;
                 novels = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                 loadingState.classList.add('hidden');
-                // 새로고침 시에도 현재 페이지(currentPage) 유지
+                
+                // 데이터 로드 후 현재 유지 중인 페이지를 반영하여 정렬/렌더링
                 filterAndSort(true);
             } catch (error) {
                 loadingState.classList.add('hidden');
@@ -481,6 +483,8 @@
                 const result = await res.json();
                 fileSha = result.content.sha;
                 if (successMessage) alert(successMessage);
+                
+                // 저장 후에도 현재 페이지(keepPage = true)를 유지한 채로 리스트 갱신
                 filterAndSort(keepPage);
             } catch (err) {
                 alert('저장 실패: ' + err.message);
@@ -518,7 +522,10 @@
             emptyState.classList.add('hidden');
 
             const totalPages = Math.ceil(filteredNovels.length / itemsPerPage);
-            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+            if (currentPage > totalPages) {
+                currentPage = Math.max(1, totalPages);
+                localStorage.setItem('novel_current_page', currentPage);
+            }
 
             const currentItems = filteredNovels.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -553,7 +560,7 @@
                 listContainer.appendChild(card);
             });
 
-            // 페이지네이션 구성 (양 옆 화살표 누르면 제일 첫/마지막 페이지로 이동)
+            // 페이지네이션 구성
             if (totalPages > 1) {
                 const maxVisiblePages = 5;
                 let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
@@ -570,6 +577,7 @@
                 prevBtn.onclick = () => {
                     if (currentPage > 1) {
                         currentPage = 1;
+                        localStorage.setItem('novel_current_page', currentPage);
                         renderList();
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
@@ -581,7 +589,12 @@
                     const btn = document.createElement('button');
                     btn.textContent = i;
                     btn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center ${i === currentPage ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white border border-slate-200 text-slate-600'}`;
-                    btn.onclick = () => { currentPage = i; renderList(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+                    btn.onclick = () => { 
+                        currentPage = i; 
+                        localStorage.setItem('novel_current_page', currentPage);
+                        renderList(); 
+                        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+                    };
                     paginationContainer.appendChild(btn);
                 }
 
@@ -592,6 +605,7 @@
                 nextBtn.onclick = () => {
                     if (currentPage < totalPages) {
                         currentPage = totalPages;
+                        localStorage.setItem('novel_current_page', currentPage);
                         renderList();
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
@@ -619,9 +633,17 @@
                 if (sortType === 'author') return a.author.localeCompare(b.author);
             });
 
-            // keepPage가 false일 때만(검색어나 필터 변경 시에만) 첫 페이지로 초기화
+            // keepPage가 false일 때만(검색어나 필터 변경 시) 1페이지로 초기화
             if (!keepPage) {
                 currentPage = 1;
+                localStorage.setItem('novel_current_page', currentPage);
+            } else {
+                // 데이터 변경 후 현재 페이지가 전체 페이지 수를 넘지 않도록 보정
+                const totalPages = Math.ceil(filteredNovels.length / itemsPerPage) || 1;
+                if (currentPage > totalPages) {
+                    currentPage = totalPages;
+                    localStorage.setItem('novel_current_page', currentPage);
+                }
             }
             renderList();
         }
