@@ -43,7 +43,7 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                     <i class="fa-solid fa-search text-xs"></i>
                 </span>
-                <input type="text" id="search-input" placeholder="제목 또는 작가 검색..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                <input type="text" id="search-input" autocomplete="off" placeholder="제목 또는 작가 검색..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
             </div>
             
             <div class="flex items-center justify-between gap-2">
@@ -115,7 +115,7 @@
         </div>
     </div>
 
-    <!-- 상세/수정 모달 (배경 클릭 시 닫기 추가) -->
+    <!-- 상세/수정 모달 -->
     <div id="detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-200" onclick="handleModalBackdropClick(event, 'detail-modal')">
         <div id="modal-content" class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-200 flex flex-col">
             <!-- 모달 헤더 -->
@@ -239,7 +239,7 @@
         </div>
     </div>
 
-    <!-- 설정 모달 (배경 클릭 시 닫기 추가) -->
+    <!-- 설정 모달 -->
     <div id="config-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden" onclick="handleModalBackdropClick(event, 'config-modal')">
         <div class="bg-white rounded-3xl shadow-xl max-w-xs w-full overflow-hidden p-5 space-y-3.5">
             <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
@@ -248,15 +248,15 @@
             <div class="space-y-2 text-xs">
                 <div>
                     <label class="block font-bold text-slate-500 uppercase mb-0.5">Owner</label>
-                    <input type="text" id="gh-owner" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <input type="text" id="gh-owner" autocomplete="off" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
                 </div>
                 <div>
                     <label class="block font-bold text-slate-500 uppercase mb-0.5">Repo</label>
-                    <input type="text" id="gh-repo" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <input type="text" id="gh-repo" autocomplete="off" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
                 </div>
                 <div>
                     <label class="block font-bold text-slate-500 uppercase mb-0.5">Token</label>
-                    <input type="password" id="gh-token" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <input type="password" id="gh-token" autocomplete="off" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
                 </div>
             </div>
             <div class="flex justify-end gap-1.5 pt-2 border-t border-slate-100">
@@ -266,20 +266,20 @@
         </div>
     </div>
 
-    <!-- 수정 모달 (배경 클릭 시 닫기 추가) -->
+    <!-- 수정 모달 (autocomplete="off" 적용으로 직전 입력 내용 하단 노출 원천 차단) -->
     <div id="edit-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden" onclick="handleModalBackdropClick(event, 'edit-modal')">
         <div class="bg-white rounded-3xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <h3 class="font-bold text-slate-900 text-sm">작품 정보 수정</h3>
-            <form id="edit-form" class="space-y-4 text-xs">
+            <form id="edit-form" class="space-y-4 text-xs" autocomplete="off">
                 <input type="hidden" id="edit-id">
                 <div>
                     <label class="block font-bold text-slate-500 mb-1">제목</label>
-                    <input type="text" id="edit-title" required class="w-full px-3 py-2 border rounded-xl">
+                    <input type="text" id="edit-title" autocomplete="off" required class="w-full px-3 py-2 border rounded-xl">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block font-bold text-slate-500 mb-1">작가</label>
-                        <input type="text" id="edit-author" required class="w-full px-3 py-2 border rounded-xl">
+                        <input type="text" id="edit-author" autocomplete="off" required class="w-full px-3 py-2 border rounded-xl">
                     </div>
                     <div>
                         <label class="block font-bold text-slate-500 mb-1">플랫폼</label>
@@ -292,19 +292,18 @@
                         </select>
                     </div>
                 </div>
-                <!-- 플랫폼 바로가기 링크 입력 필드 추가 -->
                 <div>
                     <label class="block font-bold text-slate-500 mb-1">플랫폼 바로가기 링크</label>
-                    <input type="url" id="edit-link" placeholder="https://..." class="w-full px-3 py-2 border rounded-xl">
+                    <input type="url" id="edit-link" autocomplete="off" placeholder="https://..." class="w-full px-3 py-2 border rounded-xl">
                 </div>
                 <div class="grid grid-cols-3 gap-2">
                     <div>
                         <label class="block font-bold text-slate-500 mb-1">전체 권수</label>
-                        <input type="number" id="edit-total" required class="w-full px-3 py-2 border rounded-xl">
+                        <input type="number" id="edit-total" autocomplete="off" required class="w-full px-3 py-2 border rounded-xl">
                     </div>
                     <div>
                         <label class="block font-bold text-slate-500 mb-1">미소장 권수</label>
-                        <input type="number" id="edit-missing" class="w-full px-3 py-2 border rounded-xl">
+                        <input type="number" id="edit-missing" autocomplete="off" class="w-full px-3 py-2 border rounded-xl">
                     </div>
                     <div>
                         <label class="block font-bold text-slate-500 mb-1">별점</label>
@@ -319,11 +318,11 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block font-bold text-slate-500 mb-1">구매일</label>
-                        <input type="date" id="edit-purchase-date" class="w-full px-3 py-2 border rounded-xl">
+                        <input type="date" id="edit-purchase-date" autocomplete="off" class="w-full px-3 py-2 border rounded-xl">
                     </div>
                     <div>
                         <label class="block font-bold text-slate-500 mb-1">대여 종료일</label>
-                        <input type="date" id="edit-expire-date" class="w-full px-3 py-2 border rounded-xl">
+                        <input type="date" id="edit-expire-date" autocomplete="off" class="w-full px-3 py-2 border rounded-xl">
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -332,23 +331,23 @@
                 </div>
                 <div>
                     <label class="block font-bold text-slate-500 mb-1">키워드 (띄어쓰기 구분)</label>
-                    <input type="text" id="edit-keywords" class="w-full px-3 py-2 border rounded-xl">
+                    <input type="text" id="edit-keywords" autocomplete="off" class="w-full px-3 py-2 border rounded-xl">
                 </div>
                 <div>
                     <label class="block font-bold text-slate-500 mb-1">표지 이미지 (구글 드라이브 주소 등, 콤마 구분)</label>
-                    <input type="text" id="edit-cover-images" class="w-full px-3 py-2 border rounded-xl">
+                    <input type="text" id="edit-cover-images" autocomplete="off" class="w-full px-3 py-2 border rounded-xl">
                 </div>
                 <div>
                     <label class="block font-bold text-slate-500 mb-1">등장인물 (HTML)</label>
-                    <textarea id="edit-characters" rows="2" class="w-full px-3 py-2 border rounded-xl"></textarea>
+                    <textarea id="edit-characters" rows="2" autocomplete="off" class="w-full px-3 py-2 border rounded-xl"></textarea>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-500 mb-1">작품 소개 (HTML)</label>
-                    <textarea id="edit-description" rows="3" class="w-full px-3 py-2 border rounded-xl"></textarea>
+                    <textarea id="edit-description" rows="3" autocomplete="off" class="w-full px-3 py-2 border rounded-xl"></textarea>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-500 mb-1">연작 가이드 (HTML)</label>
-                    <textarea id="edit-series-guide" rows="2" class="w-full px-3 py-2 border rounded-xl"></textarea>
+                    <textarea id="edit-series-guide" rows="2" autocomplete="off" class="w-full px-3 py-2 border rounded-xl"></textarea>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeEditModal()" class="px-4 py-2 border rounded-xl">취소</button>
@@ -458,14 +457,15 @@
                 fileSha = data.sha;
                 novels = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                 loadingState.classList.add('hidden');
-                filterAndSort();
+                // 새로고침 시에도 현재 페이지(currentPage) 유지
+                filterAndSort(true);
             } catch (error) {
                 loadingState.classList.add('hidden');
                 alert('로드 오류: ' + error.message);
             }
         }
 
-        async function saveNovelsToGitHub(successMessage = '저장되었습니다.', keepPage = false) {
+        async function saveNovelsToGitHub(successMessage = '저장되었습니다.', keepPage = true) {
             const owner = localStorage.getItem('gh_owner');
             const repo = localStorage.getItem('gh_repo');
             const token = localStorage.getItem('gh_token');
@@ -553,7 +553,7 @@
                 listContainer.appendChild(card);
             });
 
-            // 5개 단위 페이지네이션 및 <, > 버튼 적용
+            // 페이지네이션 구성 (양 옆 화살표 누르면 제일 첫/마지막 페이지로 이동)
             if (totalPages > 1) {
                 const maxVisiblePages = 5;
                 let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
@@ -563,14 +563,18 @@
                     startPage = Math.max(1, endPage - maxVisiblePages + 1);
                 }
 
-                // 이전(<) 버튼
-                if (currentPage > 1) {
-                    const prevBtn = document.createElement('button');
-                    prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left text-[10px]"></i>';
-                    prevBtn.className = "w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50";
-                    prevBtn.onclick = () => { currentPage--; renderList(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-                    paginationContainer.appendChild(prevBtn);
-                }
+                // 왼쪽 화살표 (<): 누르면 제일 첫 페이지(1)로 이동
+                const prevBtn = document.createElement('button');
+                prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left text-[10px]"></i>';
+                prevBtn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-50'}`;
+                prevBtn.onclick = () => {
+                    if (currentPage > 1) {
+                        currentPage = 1;
+                        renderList();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                };
+                paginationContainer.appendChild(prevBtn);
 
                 // 페이지 번호 버튼들
                 for (let i = startPage; i <= endPage; i++) {
@@ -581,18 +585,22 @@
                     paginationContainer.appendChild(btn);
                 }
 
-                // 다음(>) 버튼
-                if (currentPage < totalPages) {
-                    const nextBtn = document.createElement('button');
-                    nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right text-[10px]"></i>';
-                    nextBtn.className = "w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50";
-                    nextBtn.onclick = () => { currentPage++; renderList(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-                    paginationContainer.appendChild(nextBtn);
-                }
+                // 오른쪽 화살표 (>): 누르면 제일 마지막 페이지로 이동
+                const nextBtn = document.createElement('button');
+                nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right text-[10px]"></i>';
+                nextBtn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-50'}`;
+                nextBtn.onclick = () => {
+                    if (currentPage < totalPages) {
+                        currentPage = totalPages;
+                        renderList();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                };
+                paginationContainer.appendChild(nextBtn);
             }
         }
 
-        function filterAndSort(keepPage = false) {
+        function filterAndSort(keepPage = true) {
             const keyword = searchInput.value.toLowerCase().trim();
             const sortType = sortSelect.value;
 
@@ -611,7 +619,7 @@
                 if (sortType === 'author') return a.author.localeCompare(b.author);
             });
 
-            // keepPage가 아닐 때만 첫 페이지로 초기화
+            // keepPage가 false일 때만(검색어나 필터 변경 시에만) 첫 페이지로 초기화
             if (!keepPage) {
                 currentPage = 1;
             }
@@ -741,7 +749,7 @@
             setTimeout(() => detailModal.classList.add('hidden'), 200);
         }
 
-        // 표지 뷰 전환 (그리드 / 슬라이드) - 클릭 시 확대 연동
+        // 표지 뷰 전환 (그리드 / 슬라이드)
         function switchCoverView(mode) {
             const gridView = document.getElementById('cover-grid-view');
             const slideView = document.getElementById('cover-slide-view');
@@ -783,7 +791,6 @@
         }
 
         function editCurrentNovel() {
-            // 1. 모달을 열기 전 폼을 먼저 완전히 리셋하여 이전 잔여 데이터나 값들을 지웁니다.
             document.getElementById('edit-form').reset();
 
             const n = currentSelectedNovel;
@@ -810,7 +817,7 @@
 
         function closeEditModal() {
             document.getElementById('edit-modal').classList.add('hidden');
-            document.getElementById('edit-form').reset(); // 모달 닫을 때 이전 입력값 및 잔여 데이터 초기화
+            document.getElementById('edit-form').reset();
         }
 
         document.getElementById('edit-form').onsubmit = async function(e) {
@@ -819,7 +826,6 @@
             const index = novels.findIndex(n => n.id === id);
             if (index === -1) return;
 
-            // 수정 시에도 이미지 주소 일괄 변환 적용
             const rawCoverImages = document.getElementById('edit-cover-images').value.trim();
             let coverImages = '';
             if (rawCoverImages) {
@@ -835,7 +841,7 @@
                 title: document.getElementById('edit-title').value.trim(),
                 author: document.getElementById('edit-author').value.trim(),
                 platform: document.getElementById('edit-platform').value,
-                link: document.getElementById('edit-link').value.trim(), // 링크 필드 반영
+                link: document.getElementById('edit-link').value.trim(),
                 total: parseInt(document.getElementById('edit-total').value),
                 missing: parseInt(document.getElementById('edit-missing').value) || 0,
                 rating: parseFloat(document.getElementById('edit-rating').value),
@@ -850,7 +856,6 @@
             };
 
             closeEditModal();
-            // 수정 후 현재 페이지(currentPage)가 유지되도록 keepPage를 true로 전달
             saveNovelsToGitHub('성공적으로 수정되었습니다.', true);
         };
 
