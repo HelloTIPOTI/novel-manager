@@ -7,6 +7,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/HelloTIPOTI/novel-manager/main/star.png">
+    <style>
+        /* 스크롤바 영역 항상 확보 */
+        body {
+            overflow-y: scroll;
+        }
+    </style>
 </head>
 <body class="bg-[#f7f9fa] text-slate-800 min-h-screen flex flex-col justify-between">
     <div class="max-w-2xl w-full mx-auto px-4 py-6">
@@ -72,14 +78,24 @@
             </div>
         </div>
 
-        <!-- 통계 배너 -->
-        <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3.5 mb-4 flex items-center justify-between text-xs">
-            <span class="text-indigo-900 font-medium flex items-center gap-1.5">
-                <i class="fa-solid fa-circle-exclamation text-indigo-600"></i> 미소장 후속권 작품 수
-            </span>
-            <span class="bg-indigo-600 text-white font-bold px-2.5 py-0.5 rounded-full text-xs">
-                <span id="missing-count">0</span>권
-            </span>
+        <!-- 통계 배너 (미소장 후속권 및 등록된 작품 총 수) -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="bg-indigo-50/75 border border-indigo-100 rounded-2xl p-3.5 flex items-center justify-between text-xs">
+                <span class="text-indigo-900 font-medium flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-exclamation text-indigo-600"></i> 미소장 후속권
+                </span>
+                <span class="bg-indigo-600 text-white font-bold px-2.5 py-0.5 rounded-full text-xs">
+                    <span id="missing-count">0</span>권
+                </span>
+            </div>
+            <div class="bg-slate-100/80 border border-slate-200 rounded-2xl p-3.5 flex items-center justify-between text-xs">
+                <span class="text-slate-700 font-medium flex items-center gap-1.5">
+                    <i class="fa-solid fa-books text-slate-600"></i> 작품 리스트
+                </span>
+                <span class="bg-slate-700 text-white font-bold px-2.5 py-0.5 rounded-full text-xs">
+                    총 <span id="total-novel-count">0</span>개
+                </span>
+            </div>
         </div>
 
         <!-- 리스트 컨테이너 -->
@@ -99,8 +115,8 @@
         </div>
     </div>
 
-    <!-- 상세/수정 모달 -->
-    <div id="detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-200">
+    <!-- 상세/수정 모달 (배경 클릭 시 닫기 추가) -->
+    <div id="detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-200" onclick="handleModalBackdropClick(event, 'detail-modal')">
         <div id="modal-content" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-200 flex flex-col">
             <!-- 모달 헤더 -->
             <div class="sticky top-0 bg-white px-6 py-4 border-b border-slate-100 flex items-center justify-between z-10">
@@ -223,8 +239,8 @@
         </div>
     </div>
 
-    <!-- 설정 모달 -->
-    <div id="config-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <!-- 설정 모달 (배경 클릭 시 닫기 추가) -->
+    <div id="config-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden" onclick="handleModalBackdropClick(event, 'config-modal')">
         <div class="bg-white rounded-3xl shadow-xl max-w-xs w-full overflow-hidden p-5 space-y-3.5">
             <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                 <i class="fa-solid fa-gear text-indigo-600"></i> GitHub 연동 설정
@@ -250,8 +266,8 @@
         </div>
     </div>
 
-    <!-- 수정 모달 -->
-    <div id="edit-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <!-- 수정 모달 (배경 클릭 시 닫기 추가) -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden" onclick="handleModalBackdropClick(event, 'edit-modal')">
         <div class="bg-white rounded-3xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <h3 class="font-bold text-slate-900 text-sm">작품 정보 수정</h3>
             <form id="edit-form" class="space-y-4 text-xs">
@@ -361,6 +377,16 @@
         const searchInput = document.getElementById('search-input');
         const sortSelect = document.getElementById('sort-select');
         const missingCountEl = document.getElementById('missing-count');
+        const totalNovelCountEl = document.getElementById('total-novel-count');
+
+        // 모달 배경 클릭 시 닫기 핸들러
+        function handleModalBackdropClick(event, modalId) {
+            if (event.target.id === modalId) {
+                if (modalId === 'detail-modal') closeModal();
+                else if (modalId === 'config-modal') closeConfigModal();
+                else if (modalId === 'edit-modal') closeEditModal();
+            }
+        }
 
         // 구글 드라이브 링크 자동 변환 함수
         function convertGoogleDriveLink(url) {
@@ -434,7 +460,7 @@
             }
         }
 
-        async function saveNovelsToGitHub(successMessage = '저장되었습니다.') {
+        async function saveNovelsToGitHub(successMessage = '저장되었습니다.', keepPage = false) {
             const owner = localStorage.getItem('gh_owner');
             const repo = localStorage.getItem('gh_repo');
             const token = localStorage.getItem('gh_token');
@@ -450,7 +476,7 @@
                 const result = await res.json();
                 fileSha = result.content.sha;
                 if (successMessage) alert(successMessage);
-                filterAndSort();
+                filterAndSort(keepPage);
             } catch (err) {
                 alert('저장 실패: ' + err.message);
             }
@@ -475,8 +501,10 @@
             listContainer.innerHTML = '';
             paginationContainer.innerHTML = '';
 
+            // 통계 업데이트
             const missingCount = novels.filter(n => (n.missing || 0) > 0).length;
             missingCountEl.textContent = missingCount;
+            totalNovelCountEl.textContent = novels.length;
 
             if (filteredNovels.length === 0) {
                 emptyState.classList.remove('hidden');
@@ -485,7 +513,7 @@
             emptyState.classList.add('hidden');
 
             const totalPages = Math.ceil(filteredNovels.length / itemsPerPage);
-            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
 
             const currentItems = filteredNovels.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -520,18 +548,46 @@
                 listContainer.appendChild(card);
             });
 
+            // 5개 단위 페이지네이션 및 <, > 버튼 적용
             if (totalPages > 1) {
-                for (let i = 1; i <= totalPages; i++) {
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+
+                // 이전(<) 버튼
+                if (currentPage > 1) {
+                    const prevBtn = document.createElement('button');
+                    prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left text-[10px]"></i>';
+                    prevBtn.className = "w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50";
+                    prevBtn.onclick = () => { currentPage--; renderList(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+                    paginationContainer.appendChild(prevBtn);
+                }
+
+                // 페이지 번호 버튼들
+                for (let i = startPage; i <= endPage; i++) {
                     const btn = document.createElement('button');
                     btn.textContent = i;
                     btn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center ${i === currentPage ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white border border-slate-200 text-slate-600'}`;
                     btn.onclick = () => { currentPage = i; renderList(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
                     paginationContainer.appendChild(btn);
                 }
+
+                // 다음(>) 버튼
+                if (currentPage < totalPages) {
+                    const nextBtn = document.createElement('button');
+                    nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right text-[10px]"></i>';
+                    nextBtn.className = "w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50";
+                    nextBtn.onclick = () => { currentPage++; renderList(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+                    paginationContainer.appendChild(nextBtn);
+                }
             }
         }
 
-        function filterAndSort() {
+        function filterAndSort(keepPage = false) {
             const keyword = searchInput.value.toLowerCase().trim();
             const sortType = sortSelect.value;
 
@@ -550,12 +606,15 @@
                 if (sortType === 'author') return a.author.localeCompare(b.author);
             });
 
-            currentPage = 1;
+            // keepPage가 아닐 때만 첫 페이지로 초기화
+            if (!keepPage) {
+                currentPage = 1;
+            }
             renderList();
         }
 
-        searchInput.addEventListener('input', filterAndSort);
-        sortSelect.addEventListener('change', filterAndSort);
+        searchInput.addEventListener('input', () => filterAndSort(false));
+        sortSelect.addEventListener('change', () => filterAndSort(false));
 
         // 필터 버튼 이벤트
         document.getElementById('filter-missing-btn').onclick = function() {
@@ -563,21 +622,21 @@
             this.classList.toggle('bg-indigo-50', filterMissing);
             this.classList.toggle('border-indigo-300', filterMissing);
             this.classList.toggle('text-indigo-700', filterMissing);
-            filterAndSort();
+            filterAndSort(false);
         };
         document.getElementById('filter-rent-btn').onclick = function() {
             filterRent = !filterRent;
             this.classList.toggle('bg-indigo-50', filterRent);
             this.classList.toggle('border-indigo-300', filterRent);
             this.classList.toggle('text-indigo-700', filterRent);
-            filterAndSort();
+            filterAndSort(false);
         };
         document.getElementById('filter-masterpiece-btn').onclick = function() {
             filterMasterpiece = !filterMasterpiece;
             this.classList.toggle('bg-amber-50', filterMasterpiece);
             this.classList.toggle('border-amber-300', filterMasterpiece);
             this.classList.toggle('text-amber-700', filterMasterpiece);
-            filterAndSort();
+            filterAndSort(false);
         };
 
         // 플랫폼 필터 버튼
@@ -590,7 +649,7 @@
                 this.classList.remove('bg-slate-100', 'text-slate-600');
                 this.classList.add('bg-indigo-600', 'text-white');
                 activePlatform = this.dataset.platform;
-                filterAndSort();
+                filterAndSort(false);
             };
         });
 
@@ -714,7 +773,7 @@
             if (confirm(`"${currentSelectedNovel.title}" 작품을 아카이브에서 삭제하시겠습니까?`)) {
                 novels = novels.filter(n => n.id !== currentSelectedNovel.id);
                 closeModal();
-                saveNovelsToGitHub('작품이 삭제되었습니다.');
+                saveNovelsToGitHub('작품이 삭제되었습니다.', true);
             }
         }
 
@@ -780,7 +839,8 @@
             };
 
             closeEditModal();
-            saveNovelsToGitHub('성공적으로 수정되었습니다.');
+            // 수정 후 현재 페이지(currentPage)가 유지되도록 keepPage를 true로 전달
+            saveNovelsToGitHub('성공적으로 수정되었습니다.', true);
         };
 
         fetchNovelsFromGitHub();
