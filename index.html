@@ -714,8 +714,8 @@
 
             document.getElementById('modal-rating-stars').innerHTML = renderStars(novel.rating ?? 5.0);
 
-            let dateStr = novel.purchaseDate ? `구매: ${novel.purchaseDate}` : '';
-            if (novel.expireDate) dateStr += ` ~ 만료: ${novel.expireDate}`;
+            let dateStr = novel.purchaseDate ? `${novel.purchaseDate}` : '';
+            if (novel.expireDate) dateStr += ` ~ ${novel.expireDate}`;
             document.getElementById('modal-dates').textContent = dateStr || '정보 없음';
 
             const coverSec = document.getElementById('modal-cover-section');
