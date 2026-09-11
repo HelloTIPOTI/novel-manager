@@ -292,6 +292,23 @@
                         </select>
                     </div>
                 </div>
+                <!-- 작품 분류 및 이용 형태 추가 -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">작품 분류</label>
+                        <select id="edit-category" class="w-full px-3 py-2 border rounded-xl bg-white">
+                            <option value="웹소설">웹소설</option>
+                            <option value="단행본">단행본</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">이용 형태</label>
+                        <select id="edit-acquisition-type" class="w-full px-3 py-2 border rounded-xl bg-white">
+                            <option value="소장">소장</option>
+                            <option value="대여">대여</option>
+                        </select>
+                    </div>
+                </div>
                 <div>
                     <label class="block font-bold text-slate-500 mb-1">플랫폼 바로가기 링크</label>
                     <input type="url" id="edit-link" autocomplete="off" placeholder="https://..." class="w-full px-3 py-2 border rounded-xl">
@@ -459,7 +476,6 @@
                 novels = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                 loadingState.classList.add('hidden');
                 
-                // 데이터 로드 후 현재 유지 중인 페이지를 반영하여 정렬/렌더링
                 filterAndSort(true);
             } catch (error) {
                 loadingState.classList.add('hidden');
@@ -484,7 +500,6 @@
                 fileSha = result.content.sha;
                 if (successMessage) alert(successMessage);
                 
-                // 저장 후에도 현재 페이지(keepPage = true)를 유지한 채로 리스트 갱신
                 filterAndSort(keepPage);
             } catch (err) {
                 alert('저장 실패: ' + err.message);
@@ -510,7 +525,6 @@
             listContainer.innerHTML = '';
             paginationContainer.innerHTML = '';
 
-            // 통계 업데이트
             const missingCount = novels.filter(n => (n.missing || 0) > 0).length;
             missingCountEl.textContent = missingCount;
             totalNovelCountEl.textContent = novels.length;
@@ -560,7 +574,6 @@
                 listContainer.appendChild(card);
             });
 
-            // 페이지네이션 구성
             if (totalPages > 1) {
                 const maxVisiblePages = 5;
                 let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
@@ -570,7 +583,6 @@
                     startPage = Math.max(1, endPage - maxVisiblePages + 1);
                 }
 
-                // 왼쪽 화살표 (<): 누르면 제일 첫 페이지(1)로 이동
                 const prevBtn = document.createElement('button');
                 prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left text-[10px]"></i>';
                 prevBtn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-50'}`;
@@ -584,7 +596,6 @@
                 };
                 paginationContainer.appendChild(prevBtn);
 
-                // 페이지 번호 버튼들
                 for (let i = startPage; i <= endPage; i++) {
                     const btn = document.createElement('button');
                     btn.textContent = i;
@@ -598,7 +609,6 @@
                     paginationContainer.appendChild(btn);
                 }
 
-                // 오른쪽 화살표 (>): 누르면 제일 마지막 페이지로 이동
                 const nextBtn = document.createElement('button');
                 nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right text-[10px]"></i>';
                 nextBtn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-50'}`;
@@ -633,12 +643,10 @@
                 if (sortType === 'author') return a.author.localeCompare(b.author);
             });
 
-            // keepPage가 false일 때만(검색어나 필터 변경 시) 1페이지로 초기화
             if (!keepPage) {
                 currentPage = 1;
                 localStorage.setItem('novel_current_page', currentPage);
             } else {
-                // 데이터 변경 후 현재 페이지가 전체 페이지 수를 넘지 않도록 보정
                 const totalPages = Math.ceil(filteredNovels.length / itemsPerPage) || 1;
                 if (currentPage > totalPages) {
                     currentPage = totalPages;
@@ -651,7 +659,6 @@
         searchInput.addEventListener('input', () => filterAndSort(false));
         sortSelect.addEventListener('change', () => filterAndSort(false));
 
-        // 필터 버튼 이벤트
         document.getElementById('filter-missing-btn').onclick = function() {
             filterMissing = !filterMissing;
             this.classList.toggle('bg-indigo-50', filterMissing);
@@ -674,7 +681,6 @@
             filterAndSort(false);
         };
 
-        // 플랫폼 필터 버튼
         document.querySelectorAll('.platform-filter-btn').forEach(btn => {
             btn.onclick = function() {
                 document.querySelectorAll('.platform-filter-btn').forEach(b => {
@@ -688,7 +694,6 @@
             };
         });
 
-        // 모달 관리
         const detailModal = document.getElementById('detail-modal');
         const modalContent = document.getElementById('modal-content');
 
@@ -699,7 +704,6 @@
             document.getElementById('modal-volumes').textContent = `${novel.total}권 (${novel.missing || 0}권)`;
             document.getElementById('modal-link').href = novel.link && novel.link !== '#' ? novel.link : '#';
 
-            // 배지
             const masterBadge = document.getElementById('modal-badge-masterpiece');
             if (novel.isMasterpiece) masterBadge.classList.remove('hidden');
             else masterBadge.classList.add('hidden');
@@ -708,15 +712,12 @@
             document.getElementById('modal-badge-platform').textContent = novel.platform || '리디';
             document.getElementById('modal-badge-type').textContent = novel.acquisitionType || '소장';
 
-            // 별점
             document.getElementById('modal-rating-stars').innerHTML = renderStars(novel.rating ?? 5.0);
 
-            // 기간
             let dateStr = novel.purchaseDate ? `구매: ${novel.purchaseDate}` : '';
             if (novel.expireDate) dateStr += ` ~ 만료: ${novel.expireDate}`;
             document.getElementById('modal-dates').textContent = dateStr || '정보 없음';
 
-            // 표지 관리
             const coverSec = document.getElementById('modal-cover-section');
             if (novel.coverImages) {
                 currentCoverList = novel.coverImages.split(',').map(s => convertGoogleDriveLink(s)).filter(Boolean);
@@ -730,7 +731,6 @@
                 coverSec.classList.add('hidden');
             }
 
-            // 키워드
             const kwContainer = document.getElementById('modal-keywords-container');
             const kwEl = document.getElementById('modal-keywords');
             if (novel.keywords) {
@@ -740,7 +740,6 @@
                 kwContainer.classList.add('hidden');
             }
 
-            // HTML 서식 적용 필드들
             renderHtmlField('modal-chars-container', 'modal-characters', novel.characters);
             renderHtmlField('modal-desc-container', 'modal-description', novel.description);
             renderHtmlField('modal-guide-container', 'modal-series-guide', novel.seriesGuide);
@@ -771,7 +770,6 @@
             setTimeout(() => detailModal.classList.add('hidden'), 200);
         }
 
-        // 표지 뷰 전환 (그리드 / 슬라이드)
         function switchCoverView(mode) {
             const gridView = document.getElementById('cover-grid-view');
             const slideView = document.getElementById('cover-slide-view');
@@ -802,7 +800,6 @@
             updateSlideImage();
         }
 
-        // 삭제 및 수정
         function deleteCurrentNovel() {
             if (!currentSelectedNovel) return;
             if (confirm(`"${currentSelectedNovel.title}" 작품을 아카이브에서 삭제하시겠습니까?`)) {
@@ -820,6 +817,8 @@
             document.getElementById('edit-title').value = n.title;
             document.getElementById('edit-author').value = n.author;
             document.getElementById('edit-platform').value = n.platform || '리디';
+            document.getElementById('edit-category').value = n.category || '웹소설';
+            document.getElementById('edit-acquisition-type').value = n.acquisitionType || '소장';
             document.getElementById('edit-link').value = n.link || ''; 
             document.getElementById('edit-total').value = n.total;
             document.getElementById('edit-missing').value = n.missing || 0;
@@ -863,6 +862,8 @@
                 title: document.getElementById('edit-title').value.trim(),
                 author: document.getElementById('edit-author').value.trim(),
                 platform: document.getElementById('edit-platform').value,
+                category: document.getElementById('edit-category').value,
+                acquisitionType: document.getElementById('edit-acquisition-type').value,
                 link: document.getElementById('edit-link').value.trim(),
                 total: parseInt(document.getElementById('edit-total').value),
                 missing: parseInt(document.getElementById('edit-missing').value) || 0,
