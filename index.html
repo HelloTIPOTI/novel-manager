@@ -3,110 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미소장 후속관 관리</title>
+    <title>내 서재 아카이브</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-	<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/HelloTIPOTI/novel-manager/main/star.png">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/HelloTIPOTI/novel-manager/main/star.png">
 </head>
 <body class="bg-[#f7f9fa] text-slate-800 min-h-screen flex flex-col justify-between">
-    <!-- max-w-xl(약 576px)로 폭을 더 좁고 아담하게 조절 -->
-    <div class="max-w-xl w-full mx-auto px-3.5 py-6">
+    <div class="max-w-2xl w-full mx-auto px-4 py-6">
         <!-- 헤더 -->
-        <header class="flex items-center justify-between mb-5 pb-3.5 border-b border-slate-200">
+        <header class="flex items-center justify-between mb-5 pb-4 border-b border-slate-200">
             <div>
-                <h1 class="text-lg font-bold text-slate-900 flex items-center gap-1.5">
-                    <i class="fa-solid fa-book-bookmark text-indigo-600 text-sm"></i> 미소장 후속관 관리
+                <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-book-bookmark text-indigo-600"></i> 내 서재 아카이브
                 </h1>
-                <p class="text-[11px] text-slate-500 mt-0.5">미소장 후속권을 한눈에 관리하세요.</p>
+                <p class="text-xs text-slate-500 mt-0.5">작품, 키워드, 소장 정보를 통합 관리하세요.</p>
             </div>
-            <div class="flex items-center gap-1.5">
-                <button onclick="openConfigModal()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-medium px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer shadow-xs">
+            <div class="flex items-center gap-2">
+                <a href="ranking.html" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium px-3 py-2 rounded-xl transition flex items-center gap-1 shadow-xs">
+                    <i class="fa-solid fa-trophy"></i> 랭킹
+                </a>
+                <button onclick="openConfigModal()" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium px-3 py-2 rounded-xl transition flex items-center gap-1 cursor-pointer shadow-xs">
                     <i class="fa-solid fa-gear"></i> 설정
                 </button>
-                <a href="register.html" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-1 shadow-xs">
+                <a href="register.html" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1 shadow-xs">
                     <i class="fa-solid fa-plus"></i> 등록
                 </a>
             </div>
         </header>
 
-        <!-- 검색 및 필터 바 -->
-        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-200/80 mb-4 space-y-2">
+        <!-- 검색 및 기본 필터 바 -->
+        <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-200/80 mb-3 space-y-3">
             <div class="relative w-full">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                     <i class="fa-solid fa-search text-xs"></i>
                 </span>
-                <input type="text" id="search-input" placeholder="제목 또는 작가 검색..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                <input type="text" id="search-input" placeholder="제목 또는 작가 검색..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
             </div>
             
             <div class="flex items-center justify-between gap-2">
-                <!-- 글 등록순 정렬이 기본(selected)으로 오도록 설정 -->
-                <select id="sort-select" class="border border-slate-200 bg-slate-50 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 w-[55%]">
-                    <option value="latest" selected>글 등록순 정렬</option>
-                    <option value="title">제목순 정렬</option>
-                    <option value="author">작가순 정렬</option>
+                <select id="sort-select" class="border border-slate-200 bg-slate-50 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none w-[40%]">
+                    <option value="latest" selected>글 등록순</option>
+                    <option value="title">제목순</option>
+                    <option value="author">작가순</option>
                 </select>
 
-                <button id="filter-missing-btn" class="border border-slate-200 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center justify-center gap-1 text-slate-700 cursor-pointer w-[45%]">
-                    <i class="fa-solid fa-filter text-[10px]"></i> 미소장만 보기
-                </button>
+                <!-- 상태 필터 버튼들 (미소장, 대여만, 인생작만) -->
+                <div class="flex items-center gap-1.5 w-[60%] justify-end">
+                    <button id="filter-missing-btn" class="border border-slate-200 bg-slate-50 hover:bg-slate-100 px-2.5 py-2 rounded-xl text-[11px] font-medium transition text-slate-700 cursor-pointer">
+                        미소장
+                    </button>
+                    <button id="filter-rent-btn" class="border border-slate-200 bg-slate-50 hover:bg-slate-100 px-2.5 py-2 rounded-xl text-[11px] font-medium transition text-slate-700 cursor-pointer">
+                        대여
+                    </button>
+                    <button id="filter-masterpiece-btn" class="border border-slate-200 bg-slate-50 hover:bg-slate-100 px-2.5 py-2 rounded-xl text-[11px] font-medium transition text-slate-700 cursor-pointer">
+                        인생작
+                    </button>
+                </div>
+            </div>
+
+            <!-- 플랫폼 필터 버튼 바 -->
+            <div class="pt-2 border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto pb-1">
+                <span class="text-[11px] font-bold text-slate-400 mr-1 shrink-0">플랫폼:</span>
+                <button class="platform-filter-btn px-3 py-1 rounded-lg text-xs font-medium bg-indigo-600 text-white transition shrink-0 cursor-pointer" data-platform="all">전체</button>
+                <button class="platform-filter-btn px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition shrink-0 cursor-pointer" data-platform="리디">리디</button>
+                <button class="platform-filter-btn px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition shrink-0 cursor-pointer" data-platform="북큐브">북큐브</button>
+                <button class="platform-filter-btn px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition shrink-0 cursor-pointer" data-platform="카카오">카카오</button>
+                <button class="platform-filter-btn px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition shrink-0 cursor-pointer" data-platform="봄툰">봄툰</button>
+                <button class="platform-filter-btn px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition shrink-0 cursor-pointer" data-platform="알라딘">알라딘</button>
             </div>
         </div>
 
-        <!-- 미소장 카운트 알림 배너 -->
-        <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3 mb-4 flex items-center justify-between text-xs">
+        <!-- 통계 배너 -->
+        <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3.5 mb-4 flex items-center justify-between text-xs">
             <span class="text-indigo-900 font-medium flex items-center gap-1.5">
-                <i class="fa-solid fa-circle-exclamation text-indigo-600"></i> 미소장 작품 수
+                <i class="fa-solid fa-circle-exclamation text-indigo-600"></i> 미소장 후속권 작품 수
             </span>
-            <span class="bg-indigo-600 text-white font-bold px-2 py-0.5 rounded-full text-[11px]">
+            <span class="bg-indigo-600 text-white font-bold px-2.5 py-0.5 rounded-full text-xs">
                 <span id="missing-count">0</span>권
             </span>
         </div>
 
         <!-- 리스트 컨테이너 -->
-        <div id="novel-list-container" class="space-y-2.5">
-            <!-- 동적 렌더링 -->
-        </div>
+        <div id="novel-list-container" class="space-y-3"></div>
 
-        <!-- 페이지네이션 번호 버튼 영역 -->
-        <div id="pagination-container" class="flex items-center justify-center gap-1.5 mt-6 mb-2">
-            <!-- 동적 렌더링 -->
-        </div>
+        <!-- 페이지네이션 -->
+        <div id="pagination-container" class="flex items-center justify-center gap-1.5 mt-6 mb-2"></div>
 
-        <!-- 로딩 상태 -->
+        <!-- 로딩 & 빈 상태 -->
         <div id="loading-state" class="py-16 text-center text-slate-400">
             <i class="fa-solid fa-spinner fa-spin text-xl mb-2 text-indigo-600"></i>
             <p class="text-xs">데이터 불러오는 중...</p>
         </div>
-
-        <!-- 빈 결과 안내 -->
         <div id="empty-state" class="hidden py-16 text-center text-slate-400 bg-white rounded-2xl border border-slate-200/80">
             <i class="fa-regular fa-folder-open text-2xl mb-1.5"></i>
             <p class="text-xs">등록된 작품이 없습니다.</p>
         </div>
     </div>
 
-    <!-- GitHub 설정 모달 -->
+    <!-- 상세/수정 모달 -->
+    <div id="detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-200">
+        <div id="modal-content" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-200 flex flex-col">
+            <!-- 모달 헤더 -->
+            <div class="sticky top-0 bg-white px-6 py-4 border-b border-slate-100 flex items-center justify-between z-10">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-book text-indigo-600"></i> 작품 상세 아카이브
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- 모달 바디 -->
+            <div class="p-6 space-y-5 text-xs">
+                <!-- 표지 슬라이드 / 3열 그리드 영역 -->
+                <div id="modal-cover-section" class="hidden space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">작품 표지 갤러리</span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="switchCoverView('grid')" id="btn-view-grid" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-medium text-slate-700">3열 그리드</button>
+                            <button onclick="switchCoverView('slide')" id="btn-view-slide" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-medium text-slate-700">슬라이드</button>
+                        </div>
+                    </div>
+                    <!-- 그리드 뷰 -->
+                    <div id="cover-grid-view" class="grid grid-cols-3 gap-2"></div>
+                    <!-- 슬라이드 뷰 -->
+                    <div id="cover-slide-view" class="hidden relative bg-slate-100 rounded-xl overflow-hiden h-48 flex items-center justify-center">
+                        <img id="slide-img" src="" class="max-h-full object-contain">
+                        <button onclick="prevSlide()" class="absolute left-2 bg-black/40 text-white w-7 h-7 rounded-full flex items-center justify-center"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                        <button onclick="nextSlide()" class="absolute right-2 bg-black/40 text-white w-7 h-7 rounded-full flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                    </div>
+                </div>
+
+                <!-- 제목 및 기본 정보 -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span id="modal-badge-masterpiece" class="hidden bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md font-bold text-[10px] flex items-center gap-1">
+                            <i class="fa-solid fa-crown"></i> 인생작
+                        </span>
+                        <span id="modal-badge-category" class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md font-medium text-[10px]"></span>
+                        <span id="modal-badge-platform" class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium text-[10px]"></span>
+                        <span id="modal-badge-type" class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium text-[10px]"></span>
+                    </div>
+                    <div class="flex items-center justify-between pt-1">
+                        <h4 id="modal-title" class="font-bold text-slate-900 text-base"></h4>
+                        <a id="modal-link" href="#" target="_blank" class="text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1 shrink-0">
+                            플랫폼 바로가기 <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 상세 메타 정보 그리드 -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div>
+                        <span class="text-[10px] text-slate-400 block mb-0.5">작가</span>
+                        <span id="modal-author" class="text-slate-800 font-semibold"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 block mb-0.5">권수 (미소장)</span>
+                        <span id="modal-volumes" class="text-slate-800 font-semibold"></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 block mb-0.5">별점</span>
+                        <div id="modal-rating-stars" class="text-amber-500 font-bold flex items-center gap-0.5 text-xs"></div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 block mb-0.5">기간 정보</span>
+                        <span id="modal-dates" class="text-slate-700 text-[11px]"></span>
+                    </div>
+                </div>
+
+                <!-- 키워드 -->
+                <div id="modal-keywords-container" class="space-y-1.5 hidden">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">키워드</span>
+                    <div id="modal-keywords" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <!-- 등장인물 -->
+                <div id="modal-chars-container" class="space-y-1.5 hidden">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">등장인물</span>
+                    <div id="modal-characters" class="p-3 bg-slate-50 rounded-xl text-slate-700 leading-relaxed border border-slate-100"></div>
+                </div>
+
+                <!-- 작품 소개 -->
+                <div id="modal-desc-container" class="space-y-1.5 hidden">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">작품 소개</span>
+                    <div id="modal-description" class="p-3 bg-slate-50 rounded-xl text-slate-700 leading-relaxed border border-slate-100"></div>
+                </div>
+
+                <!-- 연작 가이드 -->
+                <div id="modal-guide-container" class="space-y-1.5 hidden">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">연작 가이드</span>
+                    <div id="modal-series-guide" class="p-3 bg-slate-50 rounded-xl text-slate-700 leading-relaxed border border-slate-100"></div>
+                </div>
+            </div>
+
+            <!-- 모달 푸터 -->
+            <div class="sticky bottom-0 bg-slate-50 px-6 py-3.5 flex items-center justify-between border-t border-slate-100">
+                <button onclick="deleteCurrentNovel()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs px-3 py-2 rounded-xl cursor-pointer transition flex items-center gap-1 font-medium">
+                    <i class="fa-solid fa-trash-can text-[11px]"></i> 삭제
+                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="editCurrentNovel()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs px-3.5 py-2 rounded-xl cursor-pointer transition font-medium">
+                        <i class="fa-solid fa-pen text-[10px]"></i> 수정
+                    </button>
+                    <button onclick="closeModal()" class="bg-slate-900 text-white text-xs px-4 py-2 rounded-xl cursor-pointer">
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 설정 모달 -->
     <div id="config-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white rounded-3xl shadow-xl max-w-xs w-full overflow-hidden p-5 space-y-3.5">
             <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                 <i class="fa-solid fa-gear text-indigo-600"></i> GitHub 연동 설정
             </h3>
-            
-            <div class="space-y-2">
+            <div class="space-y-2 text-xs">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Owner</label>
-                    <input type="text" id="gh-owner" placeholder="username" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                    <label class="block font-bold text-slate-500 uppercase mb-0.5">Owner</label>
+                    <input type="text" id="gh-owner" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Repo</label>
-                    <input type="text" id="gh-repo" placeholder="repository" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                    <label class="block font-bold text-slate-500 uppercase mb-0.5">Repo</label>
+                    <input type="text" id="gh-repo" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-0.5">Token</label>
-                    <input type="password" id="gh-token" placeholder="ghp_xxx" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                    <label class="block font-bold text-slate-500 uppercase mb-0.5">Token</label>
+                    <input type="password" id="gh-token" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
                 </div>
             </div>
-
             <div class="flex justify-end gap-1.5 pt-2 border-t border-slate-100">
                 <button onclick="closeConfigModal()" class="px-3 py-1.5 border border-slate-200 text-slate-600 text-xs rounded-xl">취소</button>
                 <button onclick="saveConfig()" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-xl">저장</button>
@@ -114,68 +241,99 @@
         </div>
     </div>
 
-    <!-- 상세 정보 모달 -->
-    <div id="detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-200">
-        <div id="modal-content" class="bg-white rounded-3xl shadow-xl max-w-xs w-full overflow-hidden transform scale-95 transition-transform duration-200">
-            <div class="flex items-center justify-between px-4 py-3.5 border-b border-slate-100">
-                <h3 class="font-bold text-slate-900 text-xs">작품 상세 정보</h3>
-                <button id="modal-close-btn" class="text-slate-400 hover:text-slate-600 cursor-pointer">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
-            <div class="p-4 space-y-3 text-xs">
+    <!-- 수정 모달 -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-3xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 space-y-4">
+            <h3 class="font-bold text-slate-900 text-sm">작품 정보 수정</h3>
+            <form id="edit-form" class="space-y-4 text-xs">
+                <input type="hidden" id="edit-id">
                 <div>
-                    <span class="text-[10px] text-slate-400 block mb-0.5">제목</span>
-                    <div class="flex items-center justify-between">
-                        <h4 id="modal-title" class="font-bold text-slate-900 text-sm"></h4>
-                        <a id="modal-link" href="#" target="_blank" class="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md text-[11px] font-medium flex items-center gap-1">
-                            바로가기 <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                        </a>
+                    <label class="block font-bold text-slate-500 mb-1">제목</label>
+                    <input type="text" id="edit-title" required class="w-full px-3 py-2 border rounded-xl">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">작가</label>
+                        <input type="text" id="edit-author" required class="w-full px-3 py-2 border rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">플랫폼</label>
+                        <select id="edit-platform" class="w-full px-3 py-2 border rounded-xl bg-white">
+                            <option value="리디">리디</option>
+                            <option value="북큐브">북큐브</option>
+                            <option value="카카오">카카오</option>
+                            <option value="봄툰">봄툰</option>
+                            <option value="알라딘">알라딘</option>
+                        </select>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-2 gap-2 pt-2.5 border-t border-slate-100">
+                <div class="grid grid-cols-3 gap-2">
                     <div>
-                        <span class="text-[10px] text-slate-400 block mb-0.5">작가</span>
-                        <span id="modal-author" class="text-slate-700 font-medium"></span>
+                        <label class="block font-bold text-slate-500 mb-1">전체 권수</label>
+                        <input type="number" id="edit-total" required class="w-full px-3 py-2 border rounded-xl">
                     </div>
                     <div>
-                        <span class="text-[10px] text-slate-400 block mb-0.5">전체 권수</span>
-                        <span id="modal-total" class="text-slate-700 font-medium"></span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2 pt-2.5 border-t border-slate-100">
-                    <div>
-                        <span class="text-[10px] text-slate-400 block mb-0.5">미소장 권수</span>
-                        <span id="modal-missing" class="font-bold text-rose-600"></span>
+                        <label class="block font-bold text-slate-500 mb-1">미소장 권수</label>
+                        <input type="number" id="edit-missing" class="w-full px-3 py-2 border rounded-xl">
                     </div>
                     <div>
-                        <span class="text-[10px] text-slate-400 block mb-0.5">상태</span>
-                        <div id="modal-badge-container"></div>
+                        <label class="block font-bold text-slate-500 mb-1">별점</label>
+                        <select id="edit-rating" class="w-full px-3 py-2 border rounded-xl bg-white">
+                            <option value="5">5.0</option><option value="4.5">4.5</option><option value="4">4.0</option>
+                            <option value="3.5">3.5</option><option value="3">3.0</option><option value="2.5">2.5</option>
+                            <option value="2">2.0</option><option value="1.5">1.5</option><option value="1">1.0</option>
+                            <option value="0.5">0.5</option><option value="0">0</option>
+                        </select>
                     </div>
                 </div>
-            </div>
-            <div class="bg-slate-50 px-4 py-2.5 flex items-center justify-between border-t border-slate-100">
-                <button id="modal-delete-btn" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs px-3 py-1.5 rounded-xl cursor-pointer transition flex items-center gap-1 font-medium">
-                    <i class="fa-solid fa-trash-can text-[10px]"></i> 소장 완료 (삭제)
-                </button>
-                <button id="modal-confirm-btn" class="bg-slate-900 text-white text-xs px-3.5 py-1.5 rounded-xl cursor-pointer">
-                    확인
-                </button>
-            </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="edit-is-masterpiece" class="w-4 h-4">
+                    <label for="edit-is-masterpiece" class="font-bold">인생작 체크</label>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">키워드 (띄어쓰기 구분)</label>
+                    <input type="text" id="edit-keywords" class="w-full px-3 py-2 border rounded-xl">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">표지 이미지 (콤마 구분)</label>
+                    <input type="text" id="edit-cover-images" class="w-full px-3 py-2 border rounded-xl">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">등장인물 (HTML)</label>
+                    <textarea id="edit-characters" rows="2" class="w-full px-3 py-2 border rounded-xl"></textarea>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">작품 소개 (HTML)</label>
+                    <textarea id="edit-description" rows="3" class="w-full px-3 py-2 border rounded-xl"></textarea>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">연작 가이드 (HTML)</label>
+                    <textarea id="edit-series-guide" rows="2" class="w-full px-3 py-2 border rounded-xl"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 border rounded-xl">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl">저장</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
         let novels = [];
         let filteredNovels = [];
-        let onlyMissingFilter = false;
+        let fileSha = '';
         let currentSelectedNovel = null;
-        
-        // 페이지네이션 관련 변수
+
+        // 필터 상태 변수
+        let filterMissing = false;
+        let filterRent = false;
+        let filterMasterpiece = false;
+        let activePlatform = 'all';
+
         let currentPage = 1;
-        const itemsPerPage = 10; // 한 페이지에 보여줄 작품 수
+        const itemsPerPage = 10;
+        let currentSlideIndex = 0;
+        let currentCoverList = [];
 
         const listContainer = document.getElementById('novel-list-container');
         const paginationContainer = document.getElementById('pagination-container');
@@ -183,14 +341,7 @@
         const loadingState = document.getElementById('loading-state');
         const searchInput = document.getElementById('search-input');
         const sortSelect = document.getElementById('sort-select');
-        const filterMissingBtn = document.getElementById('filter-missing-btn');
         const missingCountEl = document.getElementById('missing-count');
-
-        const detailModal = document.getElementById('detail-modal');
-        const modalContent = document.getElementById('modal-content');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-        const modalDeleteBtn = document.getElementById('modal-delete-btn');
 
         function openConfigModal() {
             document.getElementById('gh-owner').value = localStorage.getItem('gh_owner') || '';
@@ -198,9 +349,7 @@
             document.getElementById('gh-token').value = localStorage.getItem('gh_token') || '';
             document.getElementById('config-modal').classList.remove('hidden');
         }
-        function closeConfigModal() {
-            document.getElementById('config-modal').classList.add('hidden');
-        }
+        function closeConfigModal() { document.getElementById('config-modal').classList.add('hidden'); }
         function saveConfig() {
             localStorage.setItem('gh_owner', document.getElementById('gh-owner').value.trim());
             localStorage.setItem('gh_repo', document.getElementById('gh-repo').value.trim());
@@ -208,8 +357,6 @@
             closeConfigModal();
             fetchNovelsFromGitHub();
         }
-
-        let fileSha = '';
 
         async function fetchNovelsFromGitHub() {
             const owner = localStorage.getItem('gh_owner');
@@ -223,128 +370,115 @@
             }
 
             loadingState.classList.remove('hidden');
-
             try {
                 const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/novels.json`, {
                     headers: { 'Authorization': `token ${token}` }
                 });
-
-                if (!response.ok) throw new Error('GitHub 데이터를 불러오지 못했습니다.');
-
+                if (!response.ok) throw new Error('GitHub 데이터 로드 실패');
                 const data = await response.json();
                 fileSha = data.sha;
-                const decodedJson = decodeURIComponent(escape(atob(data.content)));
-                novels = JSON.parse(decodedJson);
-                
+                novels = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                 loadingState.classList.add('hidden');
                 filterAndSort();
             } catch (error) {
                 loadingState.classList.add('hidden');
-                alert('데이터 로드 실패: ' + error.message);
+                alert('로드 오류: ' + error.message);
             }
         }
 
-        async function saveNovelsToGitHub() {
+        async function saveNovelsToGitHub(successMessage = '저장되었습니다.') {
             const owner = localStorage.getItem('gh_owner');
             const repo = localStorage.getItem('gh_repo');
             const token = localStorage.getItem('gh_token');
 
-            const jsonString = JSON.stringify(novels, null, 2);
-            const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
-
+            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(novels, null, 4))));
             try {
-                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/novels.json`, {
+                const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/novels.json`, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: 'Delete novel via web app',
-                        content: base64Content,
-                        sha: fileSha
-                    })
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'Update novels archive', content: encoded, sha: fileSha })
                 });
-
-                if (!response.ok) throw new Error('GitHub 저장에 실패했습니다.');
-
-                const result = await response.json();
+                if (!res.ok) throw new Error('GitHub 저장 실패');
+                const result = await res.json();
                 fileSha = result.content.sha;
-                alert('소장 완료 처리되어 목록에서 삭제되었습니다.');
+                if (successMessage) alert(successMessage);
                 filterAndSort();
-            } catch (error) {
-                alert('삭제 실패: ' + error.message);
+            } catch (err) {
+                alert('저장 실패: ' + err.message);
             }
         }
 
-        function updateMissingCount() {
-            const count = novels.filter(n => n.missing > 0).length;
-            missingCountEl.textContent = count;
+        function renderStars(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (rating >= i) {
+                    html += '<i class="fa-solid fa-star"></i>';
+                } else if (rating >= i - 0.5) {
+                    html += '<i class="fa-solid fa-star-half-stroke"></i>';
+                } else {
+                    html += '<i class="fa-regular fa-star text-slate-300"></i>';
+                }
+            }
+            html += `<span class="ml-1 text-xs text-slate-600 font-bold">${rating}</span>`;
+            return html;
         }
 
         function renderList() {
             listContainer.innerHTML = '';
             paginationContainer.innerHTML = '';
-            
+
+            const missingCount = novels.filter(n => (n.missing || 0) > 0).length;
+            missingCountEl.textContent = missingCount;
+
             if (filteredNovels.length === 0) {
                 emptyState.classList.remove('hidden');
                 return;
             }
             emptyState.classList.add('hidden');
 
-            // 페이지네이션 계산
             const totalPages = Math.ceil(filteredNovels.length / itemsPerPage);
             if (currentPage > totalPages) currentPage = totalPages;
 
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const currentItems = filteredNovels.slice(startIndex, endIndex);
+            const currentItems = filteredNovels.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-            // 현재 페이지 목록 렌더링
             currentItems.forEach(novel => {
                 const card = document.createElement('div');
-                card.className = "bg-white p-3 rounded-2xl shadow-xs border border-slate-200/80 hover:border-indigo-300 transition cursor-pointer flex items-center justify-between gap-2";
+                card.className = "bg-white p-3.5 rounded-2xl shadow-xs border border-slate-200/80 hover:border-indigo-300 transition cursor-pointer flex items-center justify-between gap-3";
                 card.onclick = () => openModal(novel);
 
-                const hasMissing = novel.missing > 0;
+                const hasMissing = (novel.missing || 0) > 0;
+                const isMaster = novel.isMasterpiece;
 
                 card.innerHTML = `
-                    <div class="min-w-0 flex-1">
-                        <h3 class="font-bold text-slate-900 text-xs truncate mb-0.5">${novel.title}</h3>
+                    <div class="min-w-0 flex-1 space-y-1">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            ${isMaster ? '<span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-0.5"><i class="fa-solid fa-crown"></i> 인생작</span>' : ''}
+                            <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">${novel.platform || '리디'}</span>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-medium">${novel.acquisitionType || '소장'}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-xs truncate">${novel.title}</h3>
                         <p class="text-[11px] text-slate-400 truncate">${novel.author} · 전체 ${novel.total}권</p>
                     </div>
-                    <div class="flex items-center gap-2.5 shrink-0">
+                    <div class="flex items-center gap-3 shrink-0">
                         <div class="text-right">
-                            <span class="text-[10px] block text-slate-400">미소장</span>
-                            <span class="text-xs font-bold ${hasMissing ? 'text-rose-600' : 'text-slate-400'}">${novel.missing}권</span>
+                            <span class="text-[10px] block text-slate-400">별점 / 미소장</span>
+                            <div class="text-xs font-bold text-slate-700">${novel.rating ?? 5.0}점</div>
                         </div>
                         <div>
-                            ${hasMissing 
-                                ? '<span class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500"></span>'
-                                : '<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>'
-                            }
+                            ${hasMissing ? '<span class="inline-block w-2 h-2 rounded-full bg-rose-500"></span>' : '<span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>'}
                         </div>
                     </div>
                 `;
                 listContainer.appendChild(card);
             });
 
-            // 페이지 번호 버튼 렌더링 (전체 페이지가 2개 이상일 때만)
             if (totalPages > 1) {
                 for (let i = 1; i <= totalPages; i++) {
-                    const pageBtn = document.createElement('button');
-                    pageBtn.textContent = i;
-                    pageBtn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center ${
-                        i === currentPage 
-                            ? 'bg-indigo-600 text-white shadow-xs' 
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`;
-                    pageBtn.onclick = () => {
-                        currentPage = i;
-                        renderList();
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    };
-                    paginationContainer.appendChild(pageBtn);
+                    const btn = document.createElement('button');
+                    btn.textContent = i;
+                    btn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center ${i === currentPage ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white border border-slate-200 text-slate-600'}`;
+                    btn.onclick = () => { currentPage = i; renderList(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+                    paginationContainer.appendChild(btn);
                 }
             }
         }
@@ -354,56 +488,120 @@
             const sortType = sortSelect.value;
 
             filteredNovels = novels.filter(novel => {
-                const matchKeyword = novel.title.toLowerCase().includes(keyword) || novel.author.toLowerCase().includes(keyword);
-                const matchMissing = onlyMissingFilter ? novel.missing > 0 : true;
-                return matchKeyword && matchMissing;
+                const matchSearch = novel.title.toLowerCase().includes(keyword) || novel.author.toLowerCase().includes(keyword);
+                const matchMissing = filterMissing ? (novel.missing || 0) > 0 : true;
+                const matchRent = filterRent ? (novel.acquisitionType === '대여') : true;
+                const matchMasterpiece = filterMasterpiece ? novel.isMasterpiece : true;
+                const matchPlatform = activePlatform === 'all' || novel.platform === activePlatform;
+                return matchSearch && matchMissing && matchRent && matchMasterpiece && matchPlatform;
             });
 
             filteredNovels.sort((a, b) => {
-                if (sortType === 'latest') {
-                    // id가 등록 시간(timestamp)이므로 최신순(내림차순) 정렬
-                    return (b.id || 0) - (a.id || 0);
-                } else if (sortType === 'title') {
-                    return a.title.localeCompare(b.title);
-                } else if (sortType === 'author') {
-                    return a.author.localeCompare(b.author);
-                }
+                if (sortType === 'latest') return (b.id || 0) - (a.id || 0);
+                if (sortType === 'title') return a.title.localeCompare(b.title);
+                if (sortType === 'author') return a.author.localeCompare(b.author);
             });
 
-            currentPage = 1; // 검색이나 필터 변경 시 첫 페이지로 초기화
-            updateMissingCount();
+            currentPage = 1;
             renderList();
         }
 
         searchInput.addEventListener('input', filterAndSort);
         sortSelect.addEventListener('change', filterAndSort);
 
-        filterMissingBtn.addEventListener('click', () => {
-            onlyMissingFilter = !onlyMissingFilter;
-            if (onlyMissingFilter) {
-                filterMissingBtn.classList.add('bg-indigo-50', 'border-indigo-300', 'text-indigo-700');
-                filterMissingBtn.classList.remove('border-slate-200', 'text-slate-700');
-            } else {
-                filterMissingBtn.classList.remove('bg-indigo-50', 'border-indigo-300', 'text-indigo-700');
-                filterMissingBtn.classList.add('border-slate-200', 'text-slate-700');
-            }
+        // 필터 버튼 이벤트
+        document.getElementById('filter-missing-btn').onclick = function() {
+            filterMissing = !filterMissing;
+            this.classList.toggle('bg-indigo-50', filterMissing);
+            this.classList.toggle('border-indigo-300', filterMissing);
+            this.classList.toggle('text-indigo-700', filterMissing);
             filterAndSort();
+        };
+        document.getElementById('filter-rent-btn').onclick = function() {
+            filterRent = !filterRent;
+            this.classList.toggle('bg-indigo-50', filterRent);
+            this.classList.toggle('border-indigo-300', filterRent);
+            this.classList.toggle('text-indigo-700', filterRent);
+            filterAndSort();
+        };
+        document.getElementById('filter-masterpiece-btn').onclick = function() {
+            filterMasterpiece = !filterMasterpiece;
+            this.classList.toggle('bg-amber-50', filterMasterpiece);
+            this.classList.toggle('border-amber-300', filterMasterpiece);
+            this.classList.toggle('text-amber-700', filterMasterpiece);
+            filterAndSort();
+        };
+
+        // 플랫폼 필터 버튼
+        document.querySelectorAll('.platform-filter-btn').forEach(btn => {
+            btn.onclick = function() {
+                document.querySelectorAll('.platform-filter-btn').forEach(b => {
+                    b.classList.remove('bg-indigo-600', 'text-white');
+                    b.classList.add('bg-slate-100', 'text-slate-600');
+                });
+                this.classList.remove('bg-slate-100', 'text-slate-600');
+                this.classList.add('bg-indigo-600', 'text-white');
+                activePlatform = this.dataset.platform;
+                filterAndSort();
+            };
         });
+
+        // 모달 관리
+        const detailModal = document.getElementById('detail-modal');
+        const modalContent = document.getElementById('modal-content');
 
         function openModal(novel) {
             currentSelectedNovel = novel;
             document.getElementById('modal-title').textContent = novel.title;
             document.getElementById('modal-author').textContent = novel.author;
-            document.getElementById('modal-total').textContent = `${novel.total}권`;
-            document.getElementById('modal-missing').textContent = `${novel.missing}권`;
-            document.getElementById('modal-link').href = novel.link || '#';
+            document.getElementById('modal-volumes').textContent = `전체 ${novel.total}권 (미소장 ${novel.missing || 0}권)`;
+            document.getElementById('modal-link').href = novel.link && novel.link !== '#' ? novel.link : '#';
 
-            const badgeContainer = document.getElementById('modal-badge-container');
-            if (novel.missing > 0) {
-                badgeContainer.innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-100">미소장 있음</span>';
+            // 배지
+            const masterBadge = document.getElementById('modal-badge-masterpiece');
+            if (novel.isMasterpiece) masterBadge.classList.remove('hidden');
+            else masterBadge.classList.add('hidden');
+
+            document.getElementById('modal-badge-category').textContent = novel.category || '웹소설';
+            document.getElementById('modal-badge-platform').textContent = novel.platform || '리디';
+            document.getElementById('modal-badge-type').textContent = novel.acquisitionType || '소장';
+
+            // 별점
+            document.getElementById('modal-rating-stars').innerHTML = renderStars(novel.rating ?? 5.0);
+
+            // 기간
+            let dateStr = novel.purchaseDate ? `구매: ${novel.purchaseDate}` : '';
+            if (novel.expireDate) dateStr += ` ~ 만료: ${novel.expireDate}`;
+            document.getElementById('modal-dates').textContent = dateStr || '정보 없음';
+
+            // 표지 관리
+            const coverSec = document.getElementById('modal-cover-section');
+            if (novel.coverImages) {
+                currentCoverList = novel.coverImages.split(',').map(s => s.trim()).filter(Boolean);
+                if (currentCoverList.length > 0) {
+                    coverSec.classList.remove('hidden');
+                    switchCoverView('grid');
+                } else {
+                    coverSec.classList.add('hidden');
+                }
             } else {
-                badgeContainer.innerHTML = '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">모두 소장</span>';
+                coverSec.classList.add('hidden');
             }
+
+            // 키워드 (# 자동 붙이기)
+            const kwContainer = document.getElementById('modal-keywords-container');
+            const kwEl = document.getElementById('modal-keywords');
+            if (novel.keywords) {
+                kwContainer.classList.remove('hidden');
+                kwEl.innerHTML = novel.keywords.split(/\s+/).map(k => `<span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-lg text-xs font-medium">#${k.replace(/^#/, '')}</span>`).join('');
+            } else {
+                kwContainer.classList.add('hidden');
+            }
+
+            // HTML 서식 적용 필드들
+            renderHtmlField('modal-chars-container', 'modal-characters', novel.characters);
+            renderHtmlField('modal-desc-container', 'modal-description', novel.description);
+            renderHtmlField('modal-guide-container', 'modal-series-guide', novel.seriesGuide);
 
             detailModal.classList.remove('hidden');
             setTimeout(() => {
@@ -413,30 +611,110 @@
             }, 10);
         }
 
+        function renderHtmlField(containerId, contentId, htmlText) {
+            const container = document.getElementById(containerId);
+            const content = document.getElementById(contentId);
+            if (htmlText) {
+                container.classList.remove('hidden');
+                content.innerHTML = htmlText;
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
         function closeModal() {
             detailModal.classList.add('opacity-0');
             modalContent.classList.remove('scale-100');
             modalContent.classList.add('scale-95');
-            setTimeout(() => {
-                detailModal.classList.add('hidden');
-            }, 200);
+            setTimeout(() => detailModal.classList.add('hidden'), 200);
         }
 
-        modalCloseBtn.addEventListener('click', closeModal);
-        modalConfirmBtn.addEventListener('click', closeModal);
-        
-        modalDeleteBtn.addEventListener('click', () => {
-            if (!currentSelectedNovel) return;
-            if (confirm(`"${currentSelectedNovel.title}" 작품을 목록에서 삭제하시겠습니까?`)) {
-                novels = novels.filter(n => n.title !== currentSelectedNovel.title || n.author !== currentSelectedNovel.author);
-                closeModal();
-                saveNovelsToGitHub();
+        // 표지 뷰 전환 (그리드 / 슬라이드)
+        function switchCoverView(mode) {
+            const gridView = document.getElementById('cover-grid-view');
+            const slideView = document.getElementById('cover-slide-view');
+            if (mode === 'grid') {
+                gridView.classList.remove('hidden');
+                slideView.classList.add('hidden');
+                gridView.innerHTML = currentCoverList.map(url => `<div class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200"><img src="${url}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=No+Image'"></div>`).join('');
+            } else {
+                gridView.classList.add('hidden');
+                slideView.classList.remove('hidden');
+                currentSlideIndex = 0;
+                updateSlideImage();
             }
-        });
+        }
+        function updateSlideImage() {
+            document.getElementById('slide-img').src = currentCoverList[currentSlideIndex] || '';
+        }
+        function prevSlide() {
+            currentSlideIndex = (currentSlideIndex - 1 + currentCoverList.length) % currentCoverList.length;
+            updateSlideImage();
+        }
+        function nextSlide() {
+            currentSlideIndex = (currentSlideIndex + 1) % currentCoverList.length;
+            updateSlideImage();
+        }
 
-        detailModal.addEventListener('click', (e) => {
-            if (e.target === detailModal) closeModal();
-        });
+        // 삭제 및 수정
+        function deleteCurrentNovel() {
+            if (!currentSelectedNovel) return;
+            if (confirm(`"${currentSelectedNovel.title}" 작품을 아카이브에서 삭제하시겠습니까?`)) {
+                novels = novels.filter(n => n.id !== currentSelectedNovel.id);
+                closeModal();
+                saveNovelsToGitHub('작품이 삭제되었습니다.');
+            }
+        }
+
+        function editCurrentNovel() {
+            const n = currentSelectedNovel;
+            document.getElementById('edit-id').value = n.id;
+            document.getElementById('edit-title').value = n.title;
+            document.getElementById('edit-author').value = n.author;
+            document.getElementById('edit-platform').value = n.platform || '리디';
+            document.getElementById('edit-total').value = n.total;
+            document.getElementById('edit-missing').value = n.missing || 0;
+            document.getElementById('edit-rating').value = n.rating ?? 5;
+            document.getElementById('edit-is-masterpiece').checked = !!n.isMasterpiece;
+            document.getElementById('edit-keywords').value = n.keywords || '';
+            document.getElementById('edit-cover-images').value = n.coverImages || '';
+            document.getElementById('edit-characters').value = n.characters || '';
+            document.getElementById('edit-description').value = n.description || '';
+            document.getElementById('edit-series-guide').value = n.seriesGuide || '';
+
+            closeModal();
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        document.getElementById('edit-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-id').value);
+            const index = novels.findIndex(n => n.id === id);
+            if (index === -1) return;
+
+            novels[index] = {
+                ...novels[index],
+                title: document.getElementById('edit-title').value.trim(),
+                author: document.getElementById('edit-author').value.trim(),
+                platform: document.getElementById('edit-platform').value,
+                total: parseInt(document.getElementById('edit-total').value),
+                missing: parseInt(document.getElementById('edit-missing').value) || 0,
+                rating: parseFloat(document.getElementById('edit-rating').value),
+                isMasterpiece: document.getElementById('edit-is-masterpiece').checked,
+                keywords: document.getElementById('edit-keywords').value.trim(),
+                coverImages: document.getElementById('edit-cover-images').value.trim(),
+                characters: document.getElementById('edit-characters').value.trim(),
+                description: document.getElementById('edit-description').value.trim(),
+                seriesGuide: document.getElementById('edit-series-guide').value.trim()
+            };
+
+            closeEditModal();
+            saveNovelsToGitHub('성공적으로 수정되었습니다.');
+        };
 
         fetchNovelsFromGitHub();
     </script>

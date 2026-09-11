@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 서재 - 랭킹 아카이브</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/HelloTIPOTI/novel-manager/main/star.png">
+</head>
+<body class="bg-[#f7f9fa] text-slate-800 min-h-screen flex flex-col justify-between">
+    <div class="max-w-2xl w-full mx-auto px-4 py-6">
+        <!-- 헤더 -->
+        <header class="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-500"></i> 아카이브 랭킹
+                </h1>
+                <p class="text-xs text-slate-500 mt-0.5">소장 작가 및 키워드 순위를 확인하세요.</p>
+            </div>
+            <a href="index.html" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-1 shadow-xs">
+                <i class="fa-solid fa-arrow-left"></i> 메인으로
+            </a>
+        </header>
+
+        <!-- 전환 버튼 탭 -->
+        <div class="flex items-center gap-2 mb-6 bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <button onclick="switchTab('author')" id="tab-author" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition bg-indigo-600 text-white cursor-pointer flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-feather"></i> 소장 작가 랭킹
+            </button>
+            <button onclick="switchTab('keyword')" id="tab-keyword" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition bg-slate-50 text-slate-600 hover:bg-slate-100 cursor-pointer flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-tags"></i> 키워드 랭킹
+            </button>
+        </div>
+
+        <!-- 랭킹 리스트 영역 -->
+        <div id="ranking-list" class="space-y-2.5">
+            <!-- 동적 렌더링 -->
+        </div>
+
+        <!-- 로딩 -->
+        <div id="loading-state" class="py-16 text-center text-slate-400">
+            <i class="fa-solid fa-spinner fa-spin text-xl mb-2 text-indigo-600"></i>
+            <p class="text-xs">데이터 집계 중...</p>
+        </div>
+    </div>
+
+    <script>
+        let novels = [];
+        let currentTab = 'author';
+
+        const rankingList = document.getElementById('ranking-list');
+        const loadingState = document.getElementById('loading-state');
+        const tabAuthor = document.getElementById('tab-author');
+        const tabKeyword = document.getElementById('tab-keyword');
+
+        async function fetchData() {
+            const owner = localStorage.getItem('gh_owner');
+            const repo = localStorage.getItem('gh_repo');
+            const token = localStorage.getItem('gh_token');
+
+            if (!owner || !repo || !token) {
+                loadingState.innerHTML = '<p class="text-xs text-rose-500">GitHub 연동 정보가 없습니다. 메인 페이지에서 설정을 완료해주세요.</p>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/novels.json`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                if (!res.ok) throw new Error('데이터 로드 실패');
+                const data = await res.json();
+                novels = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                loadingState.classList.add('hidden');
+                renderRanking();
+            } catch (err) {
+                loadingState.innerHTML = `<p class="text-xs text-rose-500">오류: ${err.message}</p>`;
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            if (tab === 'author') {
+                tabAuthor.className = "flex-1 py-2.5 text-xs font-bold rounded-xl transition bg-indigo-600 text-white cursor-pointer flex items-center justify-center gap-1.5 shadow-xs";
+                tabKeyword.className = "flex-1 py-2.5 text-xs font-bold rounded-xl transition bg-slate-50 text-slate-600 hover:bg-slate-100 cursor-pointer flex items-center justify-center gap-1.5";
+            } else {
+                tabKeyword.className = "flex-1 py-2.5 text-xs font-bold rounded-xl transition bg-indigo-600 text-white cursor-pointer flex items-center justify-center gap-1.5 shadow-xs";
+                tabAuthor.className = "flex-1 py-2.5 text-xs font-bold rounded-xl transition bg-slate-50 text-slate-600 hover:bg-slate-100 cursor-pointer flex items-center justify-center gap-1.5";
+            }
+            renderRanking();
+        }
+
+        function renderRanking() {
+            rankingList.innerHTML = '';
+
+            if (currentTab === 'author') {
+                // 작가별 소장 작품 수 집계 (소장 형태인 작품 대상 또는 전체)
+                const authorCounts = {};
+                novels.forEach(n => {
+                    const author = n.author ? n.author.trim() : '미분류';
+                    authorCounts[author] = (authorCounts[author] || 0) + 1;
+                });
+
+                const sortedAuthors = Object.entries(authorCounts).sort((a, b) => b[1] - a[1]);
+
+                if (sortedAuthors.length === 0) {
+                    rankingList.innerHTML = '<div class="py-12 text-center text-slate-400 bg-white rounded-2xl border">데이터가 없습니다.</div>';
+                    return;
+                }
+
+                sortedAuthors.forEach(([author, count], idx) => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-4 rounded-2xl shadow-xs border border-slate-200/80 flex items-center justify-between";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs ${idx === 0 ? 'bg-amber-500 text-white' : idx === 1 ? 'bg-slate-300 text-white' : idx === 2 ? 'bg-amber-700 text-white' : 'bg-slate-100 text-slate-600'}">${idx + 1}</span>
+                            <span class="font-bold text-slate-900 text-xs">${author}</span>
+                        </div>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg">${count}작품</span>
+                    `;
+                    rankingList.appendChild(card);
+                });
+
+            } else {
+                // 키워드별 집계
+                const keywordCounts = {};
+                novels.forEach(n => {
+                    if (n.keywords) {
+                        const kws = n.keywords.split(/\s+/).filter(Boolean);
+                        kws.forEach(k => {
+                            const cleanKw = k.replace(/^#/, '');
+                            keywordCounts[cleanKw] = (keywordCounts[cleanKw] || 0) + 1;
+                        });
+                    }
+                });
+
+                const sortedKeywords = Object.entries(keywordCounts).sort((a, b) => b[1] - a[1]);
+
+                if (sortedKeywords.length === 0) {
+                    rankingList.innerHTML = '<div class="py-12 text-center text-slate-400 bg-white rounded-2xl border">등록된 키워드가 없습니다.</div>';
+                    return;
+                }
+
+                sortedKeywords.forEach(([kw, count], idx) => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-4 rounded-2xl shadow-xs border border-slate-200/80 flex items-center justify-between";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs ${idx === 0 ? 'bg-amber-500 text-white' : idx === 1 ? 'bg-slate-300 text-white' : idx === 2 ? 'bg-amber-700 text-white' : 'bg-slate-100 text-slate-600'}">${idx + 1}</span>
+                            <span class="font-bold text-slate-900 text-xs text-indigo-600">#${kw}</span>
+                        </div>
+                        <span class="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">${count}회 등장</span>
+                    `;
+                    rankingList.appendChild(card);
+                });
+            }
+        }
+
+        fetchData();
+    </script>
+</body>
+</html>
