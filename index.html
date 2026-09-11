@@ -783,12 +783,15 @@
         }
 
         function editCurrentNovel() {
+            // 1. 모달을 열기 전 폼을 먼저 완전히 리셋하여 이전 잔여 데이터나 값들을 지웁니다.
+            document.getElementById('edit-form').reset();
+
             const n = currentSelectedNovel;
             document.getElementById('edit-id').value = n.id;
             document.getElementById('edit-title').value = n.title;
             document.getElementById('edit-author').value = n.author;
             document.getElementById('edit-platform').value = n.platform || '리디';
-            document.getElementById('edit-link').value = n.link || ''; // 링크 값 바인딩
+            document.getElementById('edit-link').value = n.link || ''; 
             document.getElementById('edit-total').value = n.total;
             document.getElementById('edit-missing').value = n.missing || 0;
             document.getElementById('edit-rating').value = n.rating ?? 5;
