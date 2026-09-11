@@ -110,7 +110,7 @@
 
             <!-- 인생작 체크 -->
             <div class="flex items-center gap-2 pt-2">
-                <input type="checkbox" id="is- 인생작" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                <input type="checkbox" id="is-인생작" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
                 <label for="is-인생작" class="text-sm font-bold text-slate-800 cursor-pointer flex items-center gap-1.5">
                     <i class="fa-solid fa-crown text-amber-500"></i> 인생작으로 등록하기
                 </label>
@@ -158,6 +158,22 @@
         const form = document.getElementById('register-form');
         const submitBtn = document.getElementById('submit-btn');
 
+        // 구글 드라이브 링크 변환 함수
+        function convertGoogleDriveLink(url) {
+            url = url.trim();
+            // id=... 형태 추출
+            let match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            // /file/d/... 형태 추출
+            if (!match) {
+                match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            }
+            
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            return url; // 구글 드라이브 형식이 아니면 원래 입력값 반환
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -185,7 +201,17 @@
             const expireDate = document.getElementById('expire-date').value;
             const isMasterpiece = document.getElementById('is-인생작').checked;
             const keywords = document.getElementById('keywords').value.trim();
-            const coverImages = document.getElementById('cover-images').value.trim();
+            
+            // 표지 이미지 주소 변환 처리 (콤마 기준으로 분리 후 각각 변환하고 다시 합치기)
+            const rawCoverImages = document.getElementById('cover-images').value.trim();
+            let coverImages = '';
+            if (rawCoverImages) {
+                coverImages = rawCoverImages
+                    .split(',')
+                    .map(imgUrl => convertGoogleDriveLink(imgUrl))
+                    .join(', ');
+            }
+
             const characters = document.getElementById('characters').value.trim();
             const description = document.getElementById('description').value.trim();
             const seriesGuide = document.getElementById('series-guide').value.trim();
