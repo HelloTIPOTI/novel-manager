@@ -117,7 +117,7 @@
 
     <!-- 상세/수정 모달 (배경 클릭 시 닫기 추가) -->
     <div id="detail-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-200" onclick="handleModalBackdropClick(event, 'detail-modal')">
-        <div id="modal-content" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-200 flex flex-col">
+        <div id="modal-content" class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-200 flex flex-col">
             <!-- 모달 헤더 -->
             <div class="sticky top-0 bg-white px-6 py-4 border-b border-slate-100 flex items-center justify-between z-10">
                 <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -268,7 +268,7 @@
 
     <!-- 수정 모달 (배경 클릭 시 닫기 추가) -->
     <div id="edit-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden" onclick="handleModalBackdropClick(event, 'edit-modal')">
-        <div class="bg-white rounded-3xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 space-y-4">
+        <div class="bg-white rounded-3xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <h3 class="font-bold text-slate-900 text-sm">작품 정보 수정</h3>
             <form id="edit-form" class="space-y-4 text-xs">
                 <input type="hidden" id="edit-id">
