@@ -405,7 +405,19 @@
         "author": "김아소",
         "total": 3,
         "missing": 1,
-        "link": "https://ridibooks.com/books/120038988"
+        "link": "https://ridibooks.com/books/120038988",
+        "platform": "북큐브",
+        "category": "단행본",
+        "acquisitionType": "대여",
+        "rating": 0,
+        "purchaseDate": "2017-11-20",
+        "expireDate": "2027-11-20",
+        "isMasterpiece": false,
+        "keywords": "현대물 메디컬사건물 3인칭시점 전문직물 원나잇 다정공 연상공 변호사공 능력수 연하수 외과의사수 이혼수 애아빠수",
+        "coverImages": "https://lh3.googleusercontent.com/d/1KGGjCSlMtGCV1TBgDgTaWtTSuM2k8eJc, https://lh3.googleusercontent.com/d/1kCpNhcU64cD5gygRPc7Yn_lNgWx8gzah, https://lh3.googleusercontent.com/d/1CpanpJCrxwOEmdWhtDCMxmLy4HL_M6Vn",
+        "characters": "<b>공 : 휴고 밀러</b><br>\n깨끗하고 분명하고 명료한 것을 좋아하는 거구의 변호사. 독신주의자인 그의 인생에 레너드 도어가 들어선다. 원나잇 상대이자 의뢰인의 남편이자, 새로운 룸메이트인 ‘레니’는 완벽한 휴고 밀러에게 오점일까, 사랑일까.<br>\n<b>수 : 레너드 도어</b><br>\n26살의 젊은 나이에 명성, 실력, 인망까지 두루 못 갖춘 게 없는 천재 외과의사. 그러나 이혼과 동시에 양육권 박탈, 인턴들 앞에서는 인성 쓰레기, 연애에 관해서는 열 살 아이 수준. 병원 밖만 나서면 순진무구한 어리광쟁이, 레니가 된다.",
+        "description": "위기에 놓인 어린 천재 외과의사와, 그를 인생에 들여놓게 된 변호사 이야기. 법원 변호사 휴고는 도어 부부의 이혼상담을 담당하게 된다. 레너드 도어는 천재 외과의로 사회적 인망과 명성이 자자한데다, 법인 재단을 소유한 도어 가문의 아들. 부부의 이혼은 소송 없이 진행되지만, 레너드는 매번 지각을 하며 나쁜 태도를 보여주는데…… 문제가 있다면, ‘그래 뭐, 저렇게 생겼는데 몇 번쯤 늦어도…….’ 그가 너무 휴고의 취향이란 것. 일에 미쳐버린 이혼남과 변호사의 동거, 이대로 괜찮은 걸까?",
+        "seriesGuide": ""
     },
     {
         "id": 1789054340239,
