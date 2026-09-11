@@ -115,25 +115,6 @@
 
             <!-- 모달 바디 -->
             <div class="p-6 space-y-5 text-xs">
-                <!-- 표지 슬라이드 / 3열 그리드 영역 -->
-                <div id="modal-cover-section" class="hidden space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">작품 표지 갤러리</span>
-                        <div class="flex items-center gap-1">
-                            <button onclick="switchCoverView('grid')" id="btn-view-grid" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-medium text-slate-700">3열 그리드</button>
-                            <button onclick="switchCoverView('slide')" id="btn-view-slide" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-medium text-slate-700">슬라이드</button>
-                        </div>
-                    </div>
-                    <!-- 그리드 뷰 -->
-                    <div id="cover-grid-view" class="grid grid-cols-3 gap-2"></div>
-                    <!-- 슬라이드 뷰 -->
-                    <div id="cover-slide-view" class="hidden relative bg-slate-100 rounded-xl overflow-hiden h-48 flex items-center justify-center">
-                        <img id="slide-img" src="" class="max-h-full object-contain">
-                        <button onclick="prevSlide()" class="absolute left-2 bg-black/40 text-white w-7 h-7 rounded-full flex items-center justify-center"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-                        <button onclick="nextSlide()" class="absolute right-2 bg-black/40 text-white w-7 h-7 rounded-full flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>
-                    </div>
-                </div>
-
                 <!-- 제목 및 기본 정보 -->
                 <div class="space-y-1.5">
                     <div class="flex items-center gap-2 flex-wrap">
@@ -194,6 +175,25 @@
                 <div id="modal-guide-container" class="space-y-1.5 hidden">
                     <span class="text-[11px] font-bold text-slate-500 uppercase">연작 가이드</span>
                     <div id="modal-series-guide" class="p-3 bg-slate-50 rounded-xl text-slate-700 leading-relaxed border border-slate-100"></div>
+                </div>
+
+                <!-- 표지 슬라이드 / 3열 그리드 영역 (가장 하단으로 이동) -->
+                <div id="modal-cover-section" class="hidden space-y-3 pt-2 border-t border-slate-100">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">작품 표지 갤러리</span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="switchCoverView('grid')" id="btn-view-grid" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-medium text-slate-700 cursor-pointer">3열 그리드</button>
+                            <button onclick="switchCoverView('slide')" id="btn-view-slide" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-medium text-slate-700 cursor-pointer">슬라이드</button>
+                        </div>
+                    </div>
+                    <!-- 그리드 뷰 (포스터 비율: aspect-[3/4]) -->
+                    <div id="cover-grid-view" class="grid grid-cols-3 gap-2"></div>
+                    <!-- 슬라이드 뷰 -->
+                    <div id="cover-slide-view" class="hidden relative bg-slate-100 rounded-xl overflow-hidden h-48 flex items-center justify-center">
+                        <img id="slide-img" src="" class="max-h-full object-contain">
+                        <button onclick="prevSlide()" class="absolute left-2 bg-black/40 text-white w-7 h-7 rounded-full flex items-center justify-center cursor-pointer"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                        <button onclick="nextSlide()" class="absolute right-2 bg-black/40 text-white w-7 h-7 rounded-full flex items-center justify-center cursor-pointer"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                    </div>
                 </div>
             </div>
 
@@ -629,14 +629,14 @@
             setTimeout(() => detailModal.classList.add('hidden'), 200);
         }
 
-        // 표지 뷰 전환 (그리드 / 슬라이드)
+        // 표지 뷰 전환 (그리드 / 슬라이드) - 포스터 비율 적용
         function switchCoverView(mode) {
             const gridView = document.getElementById('cover-grid-view');
             const slideView = document.getElementById('cover-slide-view');
             if (mode === 'grid') {
                 gridView.classList.remove('hidden');
                 slideView.classList.add('hidden');
-                gridView.innerHTML = currentCoverList.map(url => `<div class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200"><img src="${url}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=No+Image'"></div>`).join('');
+                gridView.innerHTML = currentCoverList.map(url => `<div class="aspect-[3/4] bg-slate-100 rounded-xl overflow-hidden border border-slate-200"><img src="${url}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=No+Image'"></div>`).join('');
             } else {
                 gridView.classList.add('hidden');
                 slideView.classList.remove('hidden');

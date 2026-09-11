@@ -154,24 +154,44 @@
         </form>
     </div>
 
-    <script>
+<script>
         const form = document.getElementById('register-form');
         const submitBtn = document.getElementById('submit-btn');
 
-        // 구글 드라이브 링크 변환 함수
+        // 개선된 구글 드라이브 링크 변환 함수
         function convertGoogleDriveLink(url) {
             url = url.trim();
-            // id=... 형태 추출
-            let match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-            // /file/d/... 형태 추출
-            if (!match) {
-                match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (!url) return '';
+            
+            let fileId = '';
+            
+            // 1. /file/d/ID 형태
+            let match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                fileId = match[1];
             }
             
-            if (match && match[1]) {
-                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            // 2. ?id=ID 또는 &id=ID 형태
+            if (!fileId) {
+                match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    fileId = match[1];
+                }
             }
-            return url; // 구글 드라이브 형식이 아니면 원래 입력값 반환
+            
+            // 3. /open?id=ID 형태 등에서 id 추출
+            if (!fileId) {
+                match = url.match(/\/uc\?.*id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    fileId = match[1];
+                }
+            }
+
+            if (fileId) {
+                return `https://lh3.googleusercontent.com/d/${fileId}`;
+            }
+            
+            return url; // 변환 대상이 아니면 원본 반환
         }
 
         form.addEventListener('submit', async (e) => {
@@ -202,13 +222,13 @@
             const isMasterpiece = document.getElementById('is-인생작').checked;
             const keywords = document.getElementById('keywords').value.trim();
             
-            // 표지 이미지 주소 변환 처리 (콤마 기준으로 분리 후 각각 변환하고 다시 합치기)
             const rawCoverImages = document.getElementById('cover-images').value.trim();
             let coverImages = '';
             if (rawCoverImages) {
                 coverImages = rawCoverImages
                     .split(',')
                     .map(imgUrl => convertGoogleDriveLink(imgUrl))
+                    .filter(Boolean)
                     .join(', ');
             }
 
