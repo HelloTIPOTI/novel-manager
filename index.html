@@ -661,7 +661,7 @@
             currentSelectedNovel = novel;
             document.getElementById('modal-title').textContent = novel.title;
             document.getElementById('modal-author').textContent = novel.author;
-            document.getElementById('modal-volumes').textContent = `전체 ${novel.total}권 (미소장 ${novel.missing || 0}권)`;
+            document.getElementById('modal-volumes').textContent = `전체 ${novel.total}권 (${novel.missing || 0}권)`;
             document.getElementById('modal-link').href = novel.link && novel.link !== '#' ? novel.link : '#';
 
             // 배지
