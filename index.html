@@ -583,12 +583,13 @@
                     startPage = Math.max(1, endPage - maxVisiblePages + 1);
                 }
 
+                // 이전 블록으로 이동 (< 버튼)
                 const prevBtn = document.createElement('button');
                 prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left text-[10px]"></i>';
                 prevBtn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-50'}`;
                 prevBtn.onclick = () => {
                     if (currentPage > 1) {
-                        currentPage = 1;
+                        currentPage = Math.max(1, startPage - maxVisiblePages);
                         localStorage.setItem('novel_current_page', currentPage);
                         renderList();
                         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -609,12 +610,13 @@
                     paginationContainer.appendChild(btn);
                 }
 
+                // 다음 블록으로 이동 (> 버튼)
                 const nextBtn = document.createElement('button');
                 nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right text-[10px]"></i>';
                 nextBtn.className = `w-7 h-7 rounded-xl text-xs font-medium transition cursor-pointer flex items-center justify-center bg-white border border-slate-200 text-slate-600 ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-50'}`;
                 nextBtn.onclick = () => {
                     if (currentPage < totalPages) {
-                        currentPage = totalPages;
+                        currentPage = Math.min(totalPages, startPage + maxVisiblePages);
                         localStorage.setItem('novel_current_page', currentPage);
                         renderList();
                         window.scrollTo({ top: 0, behavior: 'smooth' });
