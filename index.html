@@ -292,6 +292,11 @@
                         </select>
                     </div>
                 </div>
+                <!-- 플랫폼 바로가기 링크 입력 필드 추가 -->
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">플랫폼 바로가기 링크</label>
+                    <input type="url" id="edit-link" placeholder="https://..." class="w-full px-3 py-2 border rounded-xl">
+                </div>
                 <div class="grid grid-cols-3 gap-2">
                     <div>
                         <label class="block font-bold text-slate-500 mb-1">전체 권수</label>
@@ -783,6 +788,7 @@
             document.getElementById('edit-title').value = n.title;
             document.getElementById('edit-author').value = n.author;
             document.getElementById('edit-platform').value = n.platform || '리디';
+            document.getElementById('edit-link').value = n.link || ''; // 링크 값 바인딩
             document.getElementById('edit-total').value = n.total;
             document.getElementById('edit-missing').value = n.missing || 0;
             document.getElementById('edit-rating').value = n.rating ?? 5;
@@ -801,6 +807,7 @@
 
         function closeEditModal() {
             document.getElementById('edit-modal').classList.add('hidden');
+            document.getElementById('edit-form').reset(); // 모달 닫을 때 이전 입력값 및 잔여 데이터 초기화
         }
 
         document.getElementById('edit-form').onsubmit = async function(e) {
@@ -825,6 +832,7 @@
                 title: document.getElementById('edit-title').value.trim(),
                 author: document.getElementById('edit-author').value.trim(),
                 platform: document.getElementById('edit-platform').value,
+                link: document.getElementById('edit-link').value.trim(), // 링크 필드 반영
                 total: parseInt(document.getElementById('edit-total').value),
                 missing: parseInt(document.getElementById('edit-missing').value) || 0,
                 rating: parseFloat(document.getElementById('edit-rating').value),
