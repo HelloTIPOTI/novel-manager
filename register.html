@@ -179,7 +179,7 @@
                 }
             }
             
-            // 3. /open?id=ID 형태 등에서 id 추출
+            // 3. /open?id=ID 또는 /uc?id=ID 형태 등
             if (!fileId) {
                 match = url.match(/\/uc\?.*id=([a-zA-Z0-9_-]+)/);
                 if (match && match[1]) {
@@ -191,7 +191,7 @@
                 return `https://lh3.googleusercontent.com/d/${fileId}`;
             }
             
-            return url; // 변환 대상이 아니면 원본 반환
+            return url; 
         }
 
         form.addEventListener('submit', async (e) => {

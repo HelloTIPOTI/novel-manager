@@ -177,20 +177,20 @@
                     <div id="modal-series-guide" class="p-3 bg-slate-50 rounded-xl text-slate-700 leading-relaxed border border-slate-100"></div>
                 </div>
 
-                <!-- 표지 슬라이드 / 3열 그리드 영역 (가장 하단으로 이동) -->
+                <!-- 표지 슬라이드 / 3열 그리드 영역 -->
                 <div id="modal-cover-section" class="hidden space-y-3 pt-2 border-t border-slate-100">
                     <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase">작품 표지 갤러리</span>
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">작품 표지 갤러리 (클릭시 확대)</span>
                         <div class="flex items-center gap-1">
                             <button onclick="switchCoverView('grid')" id="btn-view-grid" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-medium text-slate-700 cursor-pointer">3열 그리드</button>
                             <button onclick="switchCoverView('slide')" id="btn-view-slide" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-medium text-slate-700 cursor-pointer">슬라이드</button>
                         </div>
                     </div>
-                    <!-- 그리드 뷰 (포스터 비율: aspect-[3/4]) -->
+                    <!-- 그리드 뷰 -->
                     <div id="cover-grid-view" class="grid grid-cols-3 gap-2"></div>
                     <!-- 슬라이드 뷰 -->
                     <div id="cover-slide-view" class="hidden relative bg-slate-100 rounded-xl overflow-hidden h-48 flex items-center justify-center">
-                        <img id="slide-img" src="" class="max-h-full object-contain">
+                        <img id="slide-img" src="" class="max-h-full object-contain cursor-pointer" onclick="openImageViewer(this.src)">
                         <button onclick="prevSlide()" class="absolute left-2 bg-black/40 text-white w-7 h-7 rounded-full flex items-center justify-center cursor-pointer"><i class="fa-solid fa-chevron-left text-xs"></i></button>
                         <button onclick="nextSlide()" class="absolute right-2 bg-black/40 text-white w-7 h-7 rounded-full flex items-center justify-center cursor-pointer"><i class="fa-solid fa-chevron-right text-xs"></i></button>
                     </div>
@@ -211,6 +211,16 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- 이미지 확대 보기 모달 (라이트박스) -->
+    <div id="image-viewer-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[100] hidden" onclick="closeImageViewer()">
+        <div class="relative max-w-4xl max-h-[90vh] flex items-center justify-center" onclick="event.stopPropagation()">
+            <button onclick="closeImageViewer()" class="absolute -top-10 right-0 text-white hover:text-slate-300 text-2xl font-bold px-2 py-1 cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="expanded-image" src="" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl">
         </div>
     </div>
 
@@ -286,6 +296,16 @@
                         </select>
                     </div>
                 </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">구매일</label>
+                        <input type="date" id="edit-purchase-date" class="w-full px-3 py-2 border rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-500 mb-1">대여 종료일</label>
+                        <input type="date" id="edit-expire-date" class="w-full px-3 py-2 border rounded-xl">
+                    </div>
+                </div>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="edit-is-masterpiece" class="w-4 h-4">
                     <label for="edit-is-masterpiece" class="font-bold">인생작 체크</label>
@@ -295,7 +315,7 @@
                     <input type="text" id="edit-keywords" class="w-full px-3 py-2 border rounded-xl">
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-500 mb-1">표지 이미지 (콤마 구분)</label>
+                    <label class="block font-bold text-slate-500 mb-1">표지 이미지 (구글 드라이브 주소 등, 콤마 구분)</label>
                     <input type="text" id="edit-cover-images" class="w-full px-3 py-2 border rounded-xl">
                 </div>
                 <div>
@@ -342,6 +362,35 @@
         const searchInput = document.getElementById('search-input');
         const sortSelect = document.getElementById('sort-select');
         const missingCountEl = document.getElementById('missing-count');
+
+        // 구글 드라이브 링크 자동 변환 함수
+        function convertGoogleDriveLink(url) {
+            url = url.trim();
+            if (!url) return '';
+            let fileId = '';
+            let match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) fileId = match[1];
+            if (!fileId) {
+                match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) fileId = match[1];
+            }
+            if (!fileId) {
+                match = url.match(/\/uc\?.*id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) fileId = match[1];
+            }
+            if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
+            return url;
+        }
+
+        // 이미지 확대 보기 함수들
+        function openImageViewer(imgSrc) {
+            if (!imgSrc) return;
+            document.getElementById('expanded-image').src = imgSrc;
+            document.getElementById('image-viewer-modal').classList.remove('hidden');
+        }
+        function closeImageViewer() {
+            document.getElementById('image-viewer-modal').classList.add('hidden');
+        }
 
         function openConfigModal() {
             document.getElementById('gh-owner').value = localStorage.getItem('gh_owner') || '';
@@ -577,7 +626,7 @@
             // 표지 관리
             const coverSec = document.getElementById('modal-cover-section');
             if (novel.coverImages) {
-                currentCoverList = novel.coverImages.split(',').map(s => s.trim()).filter(Boolean);
+                currentCoverList = novel.coverImages.split(',').map(s => convertGoogleDriveLink(s)).filter(Boolean);
                 if (currentCoverList.length > 0) {
                     coverSec.classList.remove('hidden');
                     switchCoverView('grid');
@@ -588,7 +637,7 @@
                 coverSec.classList.add('hidden');
             }
 
-            // 키워드 (# 자동 붙이기)
+            // 키워드
             const kwContainer = document.getElementById('modal-keywords-container');
             const kwEl = document.getElementById('modal-keywords');
             if (novel.keywords) {
@@ -629,14 +678,18 @@
             setTimeout(() => detailModal.classList.add('hidden'), 200);
         }
 
-        // 표지 뷰 전환 (그리드 / 슬라이드) - 포스터 비율 적용
+        // 표지 뷰 전환 (그리드 / 슬라이드) - 클릭 시 확대 연동
         function switchCoverView(mode) {
             const gridView = document.getElementById('cover-grid-view');
             const slideView = document.getElementById('cover-slide-view');
             if (mode === 'grid') {
                 gridView.classList.remove('hidden');
                 slideView.classList.add('hidden');
-                gridView.innerHTML = currentCoverList.map(url => `<div class="aspect-[3/4] bg-slate-100 rounded-xl overflow-hidden border border-slate-200"><img src="${url}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=No+Image'"></div>`).join('');
+                gridView.innerHTML = currentCoverList.map(url => `
+                    <div class="aspect-[3/4] bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer" onclick="openImageViewer('${url}')">
+                        <img src="${url}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                    </div>
+                `).join('');
             } else {
                 gridView.classList.add('hidden');
                 slideView.classList.remove('hidden');
@@ -675,6 +728,8 @@
             document.getElementById('edit-total').value = n.total;
             document.getElementById('edit-missing').value = n.missing || 0;
             document.getElementById('edit-rating').value = n.rating ?? 5;
+            document.getElementById('edit-purchase-date').value = n.purchaseDate || '';
+            document.getElementById('edit-expire-date').value = n.expireDate || '';
             document.getElementById('edit-is-masterpiece').checked = !!n.isMasterpiece;
             document.getElementById('edit-keywords').value = n.keywords || '';
             document.getElementById('edit-cover-images').value = n.coverImages || '';
@@ -696,6 +751,17 @@
             const index = novels.findIndex(n => n.id === id);
             if (index === -1) return;
 
+            // 수정 시에도 이미지 주소 일괄 변환 적용
+            const rawCoverImages = document.getElementById('edit-cover-images').value.trim();
+            let coverImages = '';
+            if (rawCoverImages) {
+                coverImages = rawCoverImages
+                    .split(',')
+                    .map(imgUrl => convertGoogleDriveLink(imgUrl))
+                    .filter(Boolean)
+                    .join(', ');
+            }
+
             novels[index] = {
                 ...novels[index],
                 title: document.getElementById('edit-title').value.trim(),
@@ -704,9 +770,11 @@
                 total: parseInt(document.getElementById('edit-total').value),
                 missing: parseInt(document.getElementById('edit-missing').value) || 0,
                 rating: parseFloat(document.getElementById('edit-rating').value),
+                purchaseDate: document.getElementById('edit-purchase-date').value,
+                expireDate: document.getElementById('edit-expire-date').value,
                 isMasterpiece: document.getElementById('edit-is-masterpiece').checked,
                 keywords: document.getElementById('edit-keywords').value.trim(),
-                coverImages: document.getElementById('edit-cover-images').value.trim(),
+                coverImages: coverImages,
                 characters: document.getElementById('edit-characters').value.trim(),
                 description: document.getElementById('edit-description').value.trim(),
                 seriesGuide: document.getElementById('edit-series-guide').value.trim()
