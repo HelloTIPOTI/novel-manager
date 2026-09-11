@@ -45,6 +45,31 @@
         </div>
     </div>
 
+    <!-- 작품 리스트 모달 -->
+    <div id="ranking-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-200" onclick="handleModalBackdropClick(event)">
+        <div id="ranking-modal-content" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto transform scale-95 transition-transform duration-200 flex flex-col">
+            <!-- 모달 헤더 -->
+            <div class="sticky top-0 bg-white px-6 py-4 border-b border-slate-100 flex items-center justify-between z-10">
+                <h3 id="modal-heading" class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-indigo-600"></i> <span id="modal-title-text">작품 리스트</span>
+                </h3>
+                <button onclick="closeRankingModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <!-- 모달 바디 (작품 목록) -->
+            <div id="modal-novel-list" class="p-6 space-y-2.5 overflow-y-auto">
+                <!-- 동적 렌더링 -->
+            </div>
+            <!-- 모달 푸터 -->
+            <div class="sticky bottom-0 bg-slate-50 px-6 py-3 flex justify-end border-t border-slate-100">
+                <button onclick="closeRankingModal()" class="bg-slate-900 text-white text-xs px-4 py-2 rounded-xl cursor-pointer">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let novels = [];
         let currentTab = 'author';
@@ -53,6 +78,11 @@
         const loadingState = document.getElementById('loading-state');
         const tabAuthor = document.getElementById('tab-author');
         const tabKeyword = document.getElementById('tab-keyword');
+
+        const rankingModal = document.getElementById('ranking-modal');
+        const rankingModalContent = document.getElementById('ranking-modal-content');
+        const modalTitleText = document.getElementById('modal-title-text');
+        const modalNovelList = document.getElementById('modal-novel-list');
 
         async function fetchData() {
             const owner = localStorage.getItem('gh_owner');
@@ -94,65 +124,127 @@
             rankingList.innerHTML = '';
 
             if (currentTab === 'author') {
-                // 작가별 소장 작품 수 집계 (소장 형태인 작품 대상 또는 전체)
                 const authorCounts = {};
                 novels.forEach(n => {
                     const author = n.author ? n.author.trim() : '미분류';
-                    authorCounts[author] = (authorCounts[author] || 0) + 1;
+                    if (!authorCounts[author]) authorCounts[author] = [];
+                    authorCounts[author].push(n);
                 });
 
-                const sortedAuthors = Object.entries(authorCounts).sort((a, b) => b[1] - a[1]);
+                const sortedAuthors = Object.entries(authorCounts).sort((a, b) => b[1].length - a[1].length);
 
                 if (sortedAuthors.length === 0) {
                     rankingList.innerHTML = '<div class="py-12 text-center text-slate-400 bg-white rounded-2xl border">데이터가 없습니다.</div>';
                     return;
                 }
 
-                sortedAuthors.forEach(([author, count], idx) => {
+                sortedAuthors.forEach(([author, authorNovels], idx) => {
                     const card = document.createElement('div');
-                    card.className = "bg-white p-4 rounded-2xl shadow-xs border border-slate-200/80 flex items-center justify-between";
+                    // 클릭 시 해당 작가의 작품 리스트 모달 오픈
+                    card.className = "bg-white p-4 rounded-2xl shadow-xs border border-slate-200/80 flex items-center justify-between hover:border-indigo-300 transition cursor-pointer";
+                    card.onclick = () => openRankingModal(`[작가] ${author}`, authorNovels);
+
                     card.innerHTML = `
                         <div class="flex items-center gap-3">
                             <span class="w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs ${idx === 0 ? 'bg-amber-500 text-white' : idx === 1 ? 'bg-slate-300 text-white' : idx === 2 ? 'bg-amber-700 text-white' : 'bg-slate-100 text-slate-600'}">${idx + 1}</span>
                             <span class="font-bold text-slate-900 text-xs">${author}</span>
                         </div>
-                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg">${count}작품</span>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg">${authorNovels.length}작품 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i></span>
                     `;
                     rankingList.appendChild(card);
                 });
 
             } else {
-                // 키워드별 집계
-                const keywordCounts = {};
+                const keywordMap = {};
                 novels.forEach(n => {
                     if (n.keywords) {
                         const kws = n.keywords.split(/\s+/).filter(Boolean);
                         kws.forEach(k => {
                             const cleanKw = k.replace(/^#/, '');
-                            keywordCounts[cleanKw] = (keywordCounts[cleanKw] || 0) + 1;
+                            if (!keywordMap[cleanKw]) keywordMap[cleanKw] = [];
+                            keywordMap[cleanKw].push(n);
                         });
                     }
                 });
 
-                const sortedKeywords = Object.entries(keywordCounts).sort((a, b) => b[1] - a[1]);
+                const sortedKeywords = Object.entries(keywordMap).sort((a, b) => b[1].length - a[1].length);
 
                 if (sortedKeywords.length === 0) {
                     rankingList.innerHTML = '<div class="py-12 text-center text-slate-400 bg-white rounded-2xl border">등록된 키워드가 없습니다.</div>';
                     return;
                 }
 
-                sortedKeywords.forEach(([kw, count], idx) => {
+                sortedKeywords.forEach(([kw, kwNovels], idx) => {
                     const card = document.createElement('div');
-                    card.className = "bg-white p-4 rounded-2xl shadow-xs border border-slate-200/80 flex items-center justify-between";
+                    // 클릭 시 해당 키워드의 작품 리스트 모달 오픈
+                    card.className = "bg-white p-4 rounded-2xl shadow-xs border border-slate-200/80 flex items-center justify-between hover:border-indigo-300 transition cursor-pointer";
+                    card.onclick = () => openRankingModal(`[키워드] #${kw}`, kwNovels);
+
                     card.innerHTML = `
                         <div class="flex items-center gap-3">
                             <span class="w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs ${idx === 0 ? 'bg-amber-500 text-white' : idx === 1 ? 'bg-slate-300 text-white' : idx === 2 ? 'bg-amber-700 text-white' : 'bg-slate-100 text-slate-600'}">${idx + 1}</span>
                             <span class="font-bold text-slate-900 text-xs text-indigo-600">#${kw}</span>
                         </div>
-                        <span class="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">${count}회 등장</span>
+                        <span class="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">${kwNovels.length}작품 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i></span>
                     `;
                     rankingList.appendChild(card);
                 });
+            }
+        }
+
+        // 모달 열기 함수
+        function openRankingModal(title, novelList) {
+            modalTitleText.textContent = title;
+            modalNovelList.innerHTML = '';
+
+            novelList.forEach(novel => {
+                const item = document.createElement('div');
+                item.className = "bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 flex items-center justify-between gap-3";
+                
+                const hasMissing = (novel.missing || 0) > 0;
+                
+                item.innerHTML = `
+                    <div class="min-w-0 flex-1 space-y-1">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-[10px] bg-white text-slate-600 px-1.5 py-0.5 rounded font-medium border border-slate-200">${novel.platform || '리디'}</span>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-medium">${novel.acquisitionType || '소장'}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-xs truncate">${novel.title}</h4>
+                        <p class="text-[11px] text-slate-400 truncate">${novel.author} · 전체 ${novel.total}권</p>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <div class="text-right">
+                            <span class="text-[10px] block text-slate-400">별점</span>
+                            <div class="text-xs font-bold text-slate-700">${novel.rating ?? 5.0}점</div>
+                        </div>
+                        <div>
+                            ${hasMissing ? '<span class="inline-block w-2 h-2 rounded-full bg-rose-500" title="미소장 있음"></span>' : '<span class="inline-block w-2 h-2 rounded-full bg-emerald-500" title="전권 소장"></span>'}
+                        </div>
+                    </div>
+                `;
+                modalNovelList.appendChild(item);
+            });
+
+            rankingModal.classList.remove('hidden');
+            setTimeout(() => {
+                rankingModal.classList.remove('opacity-0');
+                rankingModalContent.classList.remove('scale-95');
+                rankingModalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        // 모달 닫기 함수
+        function closeRankingModal() {
+            rankingModal.classList.add('opacity-0');
+            rankingModalContent.classList.remove('scale-100');
+            rankingModalContent.classList.add('scale-95');
+            setTimeout(() => rankingModal.classList.add('hidden'), 200);
+        }
+
+        // 모달 배경 클릭 시 닫기
+        function handleModalBackdropClick(event) {
+            if (event.target === rankingModal) {
+                closeRankingModal();
             }
         }
 
